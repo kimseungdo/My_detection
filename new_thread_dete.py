@@ -31,7 +31,7 @@ print("call label_map & categories : %0.5f" % (time.time() - time1))
 
 def detect_objects(image_np, sess, detection_graph):
     time2 = time.time()
-    #반복돌고있음
+    #반복돌고있는 함수
     image_np_expanded = np.expand_dims(frame, axis = 0)
     
     image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
