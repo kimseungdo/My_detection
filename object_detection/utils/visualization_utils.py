@@ -19,6 +19,7 @@ These functions often receive an image, perform some visualization on the image.
 The functions do not return a value, instead they modify the image itself.
 
 """
+import cv2
 import abc
 import collections
 # Set headless-friendly backend.
@@ -201,7 +202,7 @@ def draw_bounding_box_on_image(image,
   try:
     font = ImageFont.truetype('arial.ttf', 24)
   except IOError:
-    font = ImageFont.load_default()
+    font = ImageFont.load_default() 
 
   # If the total height of the display strings added to the top of the bounding
   # box exceeds the top of the image, stack the strings below the bounding box
@@ -679,7 +680,6 @@ def draw_mask_on_image_array(image, mask, color='red', alpha=0.4):
   pil_mask = Image.fromarray(np.uint8(255.0*alpha*mask)).convert('L')
   pil_image = Image.composite(pil_solid_color, pil_image, pil_mask)
   np.copyto(image, np.array(pil_image.convert('RGB')))
-
 
 def visualize_boxes_and_labels_on_image_array(
     image,

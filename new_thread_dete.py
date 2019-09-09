@@ -11,7 +11,12 @@ from object_detection.utils import label_map_util as lmu
 from object_detection.utils import visualization_utils as vis_util
 from object_detection.utils import ops as utils_ops
 
+'''
+큐 쓰레드 = 병렬처리
+멀티프로세스 = 다른거 실행가능?!
 
+
+'''
 #define
 time1 = time.time()
 MIN_ratio = 0.8
@@ -59,6 +64,9 @@ def detect_objects(image_np, sess, detection_graph):
     print(objects)
 
     
+
+    '''
+    
     vis_util.visualize_boxes_and_labels_on_image_array(#visualization
         image_np,
         np.squeeze(boxes),
@@ -68,7 +76,7 @@ def detect_objects(image_np, sess, detection_graph):
         use_normalized_coordinates = True,
         min_score_thresh = MIN_ratio,#최소 인식률
         line_thickness = 2)#선두께
-    
+    '''
 def detect(input_Q, output_Q):
     detection_graph = tf.Graph()
     with detection_graph.as_default():
@@ -91,7 +99,7 @@ if __name__ == '__main__':
     prevtime = 0
     capture = cv2.VideoCapture(0)
 
-    ob_input_q = Queue(4)
+    ob_input_q = Queue(1)
     ob_output_q = Queue()
     #for i in range(1):
     ob_t = Thread(target=detect, args=(ob_input_q, ob_output_q))
