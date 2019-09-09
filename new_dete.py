@@ -16,8 +16,8 @@ time1 = time.time()
 MIN_ratio = 0.8
 
 
-MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
-#MODEL_NAME = 'faster_rcnn_inception_v2_coco_2018_01_28'
+#MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
+MODEL_NAME = 'faster_rcnn_inception_v2_coco_2018_01_28'
 GRAPH_FILE_NAME = 'frozen_inference_graph.pb'
 LABEL_FILE = 'data/mscoco_label_map.pbtxt'
 NUM_CLASSES = 90
@@ -71,8 +71,8 @@ num_detections = detection_graph.get_tensor_by_name('num_detections:0')
 
 print("make tensor time : %0.5f" % (time.time() - time1))
 
-#capture = cv2.VideoCapture(0)
-capture = cv2.VideoCapture("small_vid.mp4")
+capture = cv2.VideoCapture(0)
+#capture = cv2.VideoCapture("small_vid.mp4")
 prevtime = 0
 
 #thread_1 = Process(target = find_detection_target, args = (categories_index, classes, scores))#쓰레드 생성
