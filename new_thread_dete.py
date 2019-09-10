@@ -53,7 +53,7 @@ def detect_objects(image_np, sess, detection_graph):
         feed_dict={image_tensor: image_np_expanded}
         )#end sses.run()
     print("sess.run time : %0.5f" % (time.time() - time2))
-    
+    '''
     objects = [] #리스트 생성
     for index, value in enumerate(classes[0]):
         object_dict = {} #딕셔너리
@@ -62,7 +62,7 @@ def detect_objects(image_np, sess, detection_graph):
                     scores[0][index]
             objects.append(object_dict) #리스트 추가
     print(objects)
-
+    '''
     
 
     '''
@@ -99,13 +99,13 @@ if __name__ == '__main__':
     prevtime = 0
     capture = cv2.VideoCapture(0)
 
-    ob_input_q = Queue(1)
+    ob_input_q = Queue(3)
     ob_output_q = Queue()
-    #for i in range(1):
-    ob_t = Thread(target=detect, args=(ob_input_q, ob_output_q))
-    ob_t.daemon = True
-    ob_t.start()
-    print("Q thread start : %0.5f" % (time.time() - time1))
+    for i in range(1):
+        ob_t = Thread(target=detect, args=(ob_input_q, ob_output_q))
+        ob_t.daemon = True
+        ob_t.start()
+        print("Q thread start : %0.5f" % (time.time() - time1))
 
     
     

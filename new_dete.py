@@ -71,6 +71,7 @@ num_detections = detection_graph.get_tensor_by_name('num_detections:0')
 
 print("make tensor time : %0.5f" % (time.time() - time1))
 
+    
 capture = cv2.VideoCapture(0)
 #capture = cv2.VideoCapture("small_vid.mp4")
 prevtime = 0
@@ -108,7 +109,7 @@ while True:
     thread_1 = Process(target = find_detection_target, args = (categories_index, classes, scores))#쓰레드 생성
     thread_1.start()
     thread_1.join()
-    '''
+    
     
     objects = [] #리스트 생성
     for index, value in enumerate(classes[0]):
@@ -118,7 +119,7 @@ while True:
                     scores[0][index]
             objects.append(object_dict) #리스트 추가
     print(objects)
-    
+    '''
     cv2.imshow('cam', frame)
     
     key = cv2.waitKey(1) & 0xFF
