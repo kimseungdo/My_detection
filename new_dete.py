@@ -82,7 +82,7 @@ print("make tensor time : %0.5f" % (time.time() - time1))
 
     
 #capture = cv2.VideoCapture(0)
-capture = cv2.VideoCapture("small_vid2.mp4")
+capture = cv2.VideoCapture("지상 낮 720.mp4")
 prevtime = 0
 
 #thread_1 = Process(target = find_detection_target, args = (categories_index, classes, scores))#쓰레드 생성
@@ -127,9 +127,10 @@ while True:
                     scores[0][index]
             #objects.append(object_dict) #리스트 추가
             
-            '''visualize_boxes_and_labels_on_image_array box_size_info
+            '''visualize_boxes_and_labels_on_image_array box_size_info 이미지 정
             for box, color in box_to_color_map.items():
                 ymin, xmin, ymax, xmax = box
+            [index][0] [1]   [2]  [3]
 
             '''
             
