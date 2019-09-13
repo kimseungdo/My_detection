@@ -14,9 +14,14 @@ from object_detection.utils import label_map_util as lmu
 from object_detection.utils import visualization_utils as vis_util
 from object_detection.utils import ops as utils_ops
 
+#file import
+import NumberPlate as NP
+
+
+
 #define
 time1 = time.time()
-MIN_ratio = 0.8
+MIN_ratio = 0.90
 
 
 MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
@@ -33,7 +38,6 @@ categories_index = lmu.create_category_index(categories)
 print("call label_map & categories : %0.5f" % (time.time() - time1))
 
 graph_file = MODEL_NAME + '/' + GRAPH_FILE_NAME
-
 #thread function
 def find_detection_target(categories_index, classes, scores):
     time1_1 = time.time() #스레드함수 시작시간
@@ -51,6 +55,8 @@ def find_detection_target(categories_index, classes, scores):
     print("스레드 함수 처리시간 %0.5f" & (time.time() - time1_1))
 
 #end thread function
+
+
 
 detection_graph = tf.Graph()
 with detection_graph.as_default():
@@ -132,7 +138,13 @@ while True:
             ymax = int((boxes[0][index][2]*height))
             xmax = int((boxes[0][index][3]*width))
             
-            Result = np.array(frame[ymin:ymax, xmin:xmax])
+            Result = frame[ymin:ymax, xmin:xmax]
+            cv2.imwrite('car.jpg', Result)
+            try:
+                #print(NP.check())
+                NP.number_recognition('car.jpg')
+            except:
+                print("응안돼")
             cv2.imshow('re', Result)
     #print(objects)
 
