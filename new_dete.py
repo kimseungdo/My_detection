@@ -84,6 +84,7 @@ print("road Video time : %0.5f" % (time.time() - time1))
 
 while True:
     ret, frame = capture.read()
+    height, width, channel = frame.shape
     frame_expanded = np.expand_dims(frame, axis = 0)
 
     #프레임 표시
@@ -119,7 +120,7 @@ while True:
             object_dict[(categories_index.get(value)).get('name').encode('utf8')] = \
                     scores[0][index]
             #objects.append(object_dict) #리스트 추가
-            height, width, channel = frame.shape
+            
             '''visualize_boxes_and_labels_on_image_array box_size_info
             for box, color in box_to_color_map.items():
                 ymin, xmin, ymax, xmax = box
