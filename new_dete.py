@@ -4,8 +4,11 @@ import time
 import numpy as np
 import tensorflow as tf
 
+
 from queue import Queue
 from threading import Thread
+from multiprocessing import Process
+
 
 from object_detection.utils import label_map_util as lmu
 from object_detection.utils import visualization_utils as vis_util
@@ -16,8 +19,8 @@ time1 = time.time()
 MIN_ratio = 0.8
 
 
-#MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
-MODEL_NAME = 'faster_rcnn_inception_v2_coco_2018_01_28'
+MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
+#MODEL_NAME = 'faster_rcnn_inception_v2_coco_2018_01_28'
 GRAPH_FILE_NAME = 'frozen_inference_graph.pb'
 LABEL_FILE = 'data/mscoco_label_map.pbtxt'
 NUM_CLASSES = 90
@@ -72,11 +75,12 @@ num_detections = detection_graph.get_tensor_by_name('num_detections:0')
 print("make tensor time : %0.5f" % (time.time() - time1))
 
     
-capture = cv2.VideoCapture(0)
-#capture = cv2.VideoCapture("small_vid.mp4")
+#capture = cv2.VideoCapture(0)
+capture = cv2.VideoCapture("small_vid2.mp4")
 prevtime = 0
 
 #thread_1 = Process(target = find_detection_target, args = (categories_index, classes, scores))#쓰레드 생성
+print("road Video time : %0.5f" % (time.time() - time1))
 
 while True:
     ret, frame = capture.read()
@@ -95,7 +99,7 @@ while True:
         [detection_boxes, detection_scores, detection_classes, num_detections],
         feed_dict={image_tensor: frame_expanded}
         )#end sses.run()
-    
+    '''
     vis_util.visualize_boxes_and_labels_on_image_array(
         frame,
         np.squeeze(boxes),
@@ -106,20 +110,32 @@ while True:
         min_score_thresh = MIN_ratio,#최소 인식률
         line_thickness = 2)#선두께
     '''
-    thread_1 = Process(target = find_detection_target, args = (categories_index, classes, scores))#쓰레드 생성
-    thread_1.start()
-    thread_1.join()
+
     
-    
-    objects = [] #리스트 생성
+    #objects = [] #리스트 생성
     for index, value in enumerate(classes[0]):
         object_dict = {} #딕셔너리
         if scores[0][index] > MIN_ratio:
             object_dict[(categories_index.get(value)).get('name').encode('utf8')] = \
                     scores[0][index]
-            objects.append(object_dict) #리스트 추가
-    print(objects)
-    '''
+            #objects.append(object_dict) #리스트 추가
+            height, width, channel = frame.shape
+            '''visualize_boxes_and_labels_on_image_array box_size_info
+            for box, color in box_to_color_map.items():
+                ymin, xmin, ymax, xmax = box
+
+            '''
+            
+            ymin = int((boxes[0][index][0]*height))
+            xmin = int((boxes[0][index][1]*width))
+            ymax = int((boxes[0][index][2]*height))
+            xmax = int((boxes[0][index][3]*width))
+            
+            Result = np.array(frame[ymin:ymax, xmin:xmax])
+            cv2.imshow('re', Result)
+    #print(objects)
+
+    
     cv2.imshow('cam', frame)
     
     key = cv2.waitKey(1) & 0xFF
