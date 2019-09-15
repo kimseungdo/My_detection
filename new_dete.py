@@ -82,7 +82,7 @@ print("make tensor time : %0.5f" % (time.time() - time1))
 
     
 #capture = cv2.VideoCapture(0)
-capture = cv2.VideoCapture("지상 낮 720.mp4")
+capture = cv2.VideoCapture("현백(느린주행).mp4")
 prevtime = 0
 
 #thread_1 = Process(target = find_detection_target, args = (categories_index, classes, scores))#쓰레드 생성
