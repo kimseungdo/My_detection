@@ -14,9 +14,14 @@ from object_detection.utils import label_map_util as lmu
 from object_detection.utils import visualization_utils as vis_util
 from object_detection.utils import ops as utils_ops
 
+#file import
+import NumberPlate as NP
+
+
+
 #define
 time1 = time.time()
-MIN_ratio = 0.8
+MIN_ratio = 0.90
 
 
 MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
@@ -33,7 +38,6 @@ categories_index = lmu.create_category_index(categories)
 print("call label_map & categories : %0.5f" % (time.time() - time1))
 
 graph_file = MODEL_NAME + '/' + GRAPH_FILE_NAME
-
 #thread function
 def find_detection_target(categories_index, classes, scores):
     time1_1 = time.time() #스레드함수 시작시간
@@ -51,6 +55,8 @@ def find_detection_target(categories_index, classes, scores):
     print("스레드 함수 처리시간 %0.5f" & (time.time() - time1_1))
 
 #end thread function
+
+
 
 detection_graph = tf.Graph()
 with detection_graph.as_default():
@@ -76,7 +82,7 @@ print("make tensor time : %0.5f" % (time.time() - time1))
 
     
 #capture = cv2.VideoCapture(0)
-capture = cv2.VideoCapture("small_vid2.mp4")
+capture = cv2.VideoCapture("지상 낮 720.mp4")
 prevtime = 0
 
 #thread_1 = Process(target = find_detection_target, args = (categories_index, classes, scores))#쓰레드 생성
@@ -121,9 +127,10 @@ while True:
                     scores[0][index]
             #objects.append(object_dict) #리스트 추가
             
-            '''visualize_boxes_and_labels_on_image_array box_size_info
+            '''visualize_boxes_and_labels_on_image_array box_size_info 이미지 정
             for box, color in box_to_color_map.items():
                 ymin, xmin, ymax, xmax = box
+            [index][0] [1]   [2]  [3]
 
             '''
             
@@ -132,7 +139,13 @@ while True:
             ymax = int((boxes[0][index][2]*height))
             xmax = int((boxes[0][index][3]*width))
             
-            Result = np.array(frame[ymin:ymax, xmin:xmax])
+            Result = frame[ymin:ymax, xmin:xmax]
+            cv2.imwrite('car.jpg', Result)
+            try:
+                #print(NP.check())
+                NP.number_recognition('car.jpg')
+            except:
+                print("응안돼")
             cv2.imshow('re', Result)
     #print(objects)
 
