@@ -223,6 +223,15 @@ class Thread(QThread):
             ret, frame = capture.read()
             frame_expanded = np.expand_dims(frame, axis = 0)
 
+            #프레임 표시
+            curtime = time.time()
+            sec = curtime - prevtime
+            prevtime = curtime
+            fps = 1/ sec
+            str = "FPS : %0.1f" % fps
+            cv2.putText(frame, str, (0, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0))
+            #end 프레임
+
             (boxes, scores, classes, nums) = sses.run( #np.ndarray
                 [detection_boxes, detection_scores, detection_classes, num_detections],
                 feed_dict={image_tensor: frame_expanded}
