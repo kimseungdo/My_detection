@@ -21,7 +21,7 @@ import NumberPlate as NP
 
 #define
 time1 = time.time()
-MIN_ratio = 0.90
+MIN_ratio = 0.85
 
 
 MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
@@ -82,7 +82,7 @@ print("make tensor time : %0.5f" % (time.time() - time1))
 
     
 #capture = cv2.VideoCapture(0)
-capture = cv2.VideoCapture("현백(느린주행).mp4")
+capture = cv2.VideoCapture("현백(순차주행_병목_HD_8fps).mp4")
 prevtime = 0
 
 #thread_1 = Process(target = find_detection_target, args = (categories_index, classes, scores))#쓰레드 생성
@@ -90,6 +90,8 @@ print("road Video time : %0.5f" % (time.time() - time1))
 
 while True:
     ret, frame = capture.read()
+    #frame = cv2.flip(frame, 0)
+    #frame = cv2.flip(frame, 1)
     height, width, channel = frame.shape
     frame_expanded = np.expand_dims(frame, axis = 0)
 
@@ -106,7 +108,7 @@ while True:
         [detection_boxes, detection_scores, detection_classes, num_detections],
         feed_dict={image_tensor: frame_expanded}
         )#end sses.run()
-    '''
+    
     vis_util.visualize_boxes_and_labels_on_image_array(
         frame,
         np.squeeze(boxes),
@@ -116,28 +118,38 @@ while True:
         use_normalized_coordinates = True,
         min_score_thresh = MIN_ratio,#최소 인식률
         line_thickness = 2)#선두께
-    '''
-
     
+
+    '''
+    2 bicycle
+    3 car
+    4 motorcycle
+    6 bus
+    8 truck
+
+    '''
+    '''   
     #objects = [] #리스트 생성
     for index, value in enumerate(classes[0]):
         object_dict = {} #딕셔너리
+        #print(categories_index.get(value).get('name'))
         if scores[0][index] > MIN_ratio:
             object_dict[(categories_index.get(value)).get('name').encode('utf8')] = \
                     scores[0][index]
             #objects.append(object_dict) #리스트 추가
             
-            '''visualize_boxes_and_labels_on_image_array box_size_info 이미지 정
+            visualize_boxes_and_labels_on_image_array box_size_info 이미지 정
             for box, color in box_to_color_map.items():
                 ymin, xmin, ymax, xmax = box
             [index][0] [1]   [2]  [3]
 
-            '''
+            
             
             ymin = int((boxes[0][index][0]*height))
             xmin = int((boxes[0][index][1]*width))
             ymax = int((boxes[0][index][2]*height))
             xmax = int((boxes[0][index][3]*width))
+            #print('가로: %d' &ymax-ymin)
             
             Result = frame[ymin:ymax, xmin:xmax]
             cv2.imwrite('car.jpg', Result)
@@ -147,8 +159,9 @@ while True:
             except:
                 print("응안돼")
             cv2.imshow('re', Result)
+            
     #print(objects)
-
+    '''
     
     cv2.imshow('cam', frame)
     
