@@ -128,7 +128,7 @@ while True:
     8 truck
 
     '''
-    '''   
+    
     #objects = [] #리스트 생성
     for index, value in enumerate(classes[0]):
         object_dict = {} #딕셔너리
@@ -137,13 +137,13 @@ while True:
             object_dict[(categories_index.get(value)).get('name').encode('utf8')] = \
                     scores[0][index]
             #objects.append(object_dict) #리스트 추가
-            
+            '''
             visualize_boxes_and_labels_on_image_array box_size_info 이미지 정
             for box, color in box_to_color_map.items():
                 ymin, xmin, ymax, xmax = box
             [index][0] [1]   [2]  [3]
 
-            
+            '''
             
             ymin = int((boxes[0][index][0]*height))
             xmin = int((boxes[0][index][1]*width))
@@ -161,7 +161,7 @@ while True:
             cv2.imshow('re', Result)
             
     #print(objects)
-    '''
+    
     
     cv2.imshow('cam', frame)
     
