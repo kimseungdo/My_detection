@@ -4,6 +4,9 @@ import time
 import numpy as np
 import tensorflow as tf
 
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+session = tf.Session(config=config)
 
 from queue import Queue
 from threading import Thread
@@ -24,8 +27,8 @@ time1 = time.time()
 MIN_ratio = 0.85
 
 
-MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
-#MODEL_NAME = 'faster_rcnn_inception_v2_coco_2018_01_28'
+#MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
+MODEL_NAME = 'faster_rcnn_inception_v2_coco_2018_01_28'
 GRAPH_FILE_NAME = 'frozen_inference_graph.pb'
 LABEL_FILE = 'data/mscoco_label_map.pbtxt'
 NUM_CLASSES = 90
@@ -82,7 +85,7 @@ print("make tensor time : %0.5f" % (time.time() - time1))
 
     
 #capture = cv2.VideoCapture(0)
-capture = cv2.VideoCapture("현백(순차주행_병목_HD_8fps).mp4")
+capture = cv2.VideoCapture('현백(순차주행_병목_HD_8fps).mp4')
 prevtime = 0
 
 #thread_1 = Process(target = find_detection_target, args = (categories_index, classes, scores))#쓰레드 생성
@@ -90,9 +93,9 @@ print("road Video time : %0.5f" % (time.time() - time1))
 
 while True:
     ret, frame = capture.read()
-    #frame = cv2.flip(frame, 0)
-    #frame = cv2.flip(frame, 1)
     height, width, channel = frame.shape
+    print("높이 : %d" %height)
+    print("폭 : %d" %width)
     frame_expanded = np.expand_dims(frame, axis = 0)
 
     #프레임 표시
@@ -104,7 +107,7 @@ while True:
     cv2.putText(frame, str, (0, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0))
     #end 프레임
     
-    (boxes, scores, classes, nums) = sses.run( #np.ndarray
+    (boxes, scores, classes, nums) = sses.run(#np.ndarray
         [detection_boxes, detection_scores, detection_classes, num_detections],
         feed_dict={image_tensor: frame_expanded}
         )#end sses.run()
@@ -151,14 +154,15 @@ while True:
             xmax = int((boxes[0][index][3]*width))
             #print('가로: %d' &ymax-ymin)
             
-            Result = frame[ymin:ymax, xmin:xmax]
-            cv2.imwrite('car.jpg', Result)
+            #Result = frame[ymin:ymax, xmin:xmax]
+            #cv2.imwrite('car.jpg', Result)
             try:
-                #print(NP.check())
-                NP.number_recognition('car.jpg')
+                print(NP.check())
+                #NP.number_recognition('car.jpg')
+                
             except:
                 print("응안돼")
-            cv2.imshow('re', Result)
+            #cv2.imshow('re', Result)
             
     #print(objects)
     

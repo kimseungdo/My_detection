@@ -1,0 +1,5 @@
+2019-09-17 14:15:46.340680: E T:\src\github\tensorflow\tensorflow\stream_executor\cuda\cuda_dnn.cc:455] 
+could not create cudnn handle: CUDNN_STATUS_ALLOC_FAILED
+
+2019-09-17 14:15:46.345004: F T:\src\github\tensorflow\tensorflow\core\kernels\conv_ops.cc:713] 
+Check failed: stream->parent()->GetConvolveAlgorithms( conv_parameters.ShouldIncludeWinogradNonfusedAlgo<T>(), &algorithms)

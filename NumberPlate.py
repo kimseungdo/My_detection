@@ -4,10 +4,10 @@ import pytesseract
 import time
 from PIL import Image
 
-'''
+
 def check():
     return "파일 함수 불러오기는 했음"
-'''  
+
 # --Read Input Image--
 def number_recognition(cut_image):
     img_ori = cv2.imread(cut_image) #이미지 불러오기
