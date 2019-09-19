@@ -50,7 +50,7 @@ def create_category_index(categories):
     category_index: a dict containing the same entries as categories, but keyed
       by the 'id' field of each category.
   """
-  category_index = {}
+  category_index = {} #리스트형 
   for cat in categories:
     category_index[cat['id']] = cat
   return category_index
@@ -104,23 +104,30 @@ def convert_label_map_to_categories(label_map,
           'name': 'category_{}'.format(class_id + label_id_offset)
       })
     return categories
+  
   for item in label_map.item:
+    # print(type(item) )
+    # <class 'object_detection.protos.string_int_label_map_pb2.StringIntLabelMapItem'> 
+
     if not 0 < item.id <= max_num_classes:
       logging.info(
           'Ignore item %d since it falls outside of requested '
           'label range.', item.id)
       continue
+    
     if use_display_name and item.HasField('display_name'):
       name = item.display_name
     else:
       name = item.name
+      
     if item.id not in list_of_ids_already_added:
       list_of_ids_already_added.append(item.id)
       categories.append({'id': item.id, 'name': name})
+      
   return categories
 
 
-def load_labelmap(path):
+def load_labelmap(path): #첫번째 동작함수 라벨 적재ㅔ
   """Loads label map proto.
 
   Args:

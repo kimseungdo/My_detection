@@ -135,7 +135,12 @@ def draw_bounding_box_on_image_array(image,
 
   Bounding box coordinates can be specified in either absolute (pixel) or
   normalized coordinates by setting the use_normalized_coordinates argument.
+  
+  이미지에 경계 상자 추가(넘파이 배열).
 
+  경계 상자 좌표는 절대값 (픽셀) 또는
+  use_normalized_coordinates 인수를 설정하여 정규화 된 좌표 반환
+  
   Args:
     image: a numpy array with shape [height, width, 3].
     ymin: ymin of bounding box.
@@ -150,12 +155,17 @@ def draw_bounding_box_on_image_array(image,
       ymin, xmin, ymax, xmax as relative to the image.  Otherwise treat
       coordinates as absolute.
   """
-  image_pil = Image.fromarray(np.uint8(image)).convert('RGB')
+  #픽셀마다 int8형을 주고 깔라로 변환함
+  image_pil = Image.fromarray(np.uint8(image)).convert('RGB') #전체 이미지 픽셀 형변환
   draw_bounding_box_on_image(image_pil, ymin, xmin, ymax, xmax, color,
                              thickness, display_str_list,
                              use_normalized_coordinates)
-  np.copyto(image, np.array(image_pil))
 
+  
+  
+  np.copyto(image, np.array(image_pil))
+  #print("image_pil:" + str(image_pil))
+  #print("image:" + str(image))
 
 def draw_bounding_box_on_image(image,
                                ymin,
@@ -166,6 +176,7 @@ def draw_bounding_box_on_image(image,
                                thickness=4,
                                display_str_list=(),
                                use_normalized_coordinates=True):
+  
   """Adds a bounding box to an image.
 
   Bounding box coordinates can be specified in either absolute (pixel) or
@@ -190,15 +201,29 @@ def draw_bounding_box_on_image(image,
       ymin, xmin, ymax, xmax as relative to the image.  Otherwise treat
       coordinates as absolute.
   """
+  #박스 그리는데 사이즈 주는거 가로세로 폭 줌
   draw = ImageDraw.Draw(image)
+  # print(type(draw)) <class 'PIL.ImageDraw.ImageDraw'>
+  # print(draw) <PIL.ImageDraw.ImageDraw object at 0x000001FAC2BA9550> 주소값은 이미지
+  
+  
   im_width, im_height = image.size
+  
   if use_normalized_coordinates:
-    (left, right, top, bottom) = (xmin * im_width, xmax * im_width,
-                                  ymin * im_height, ymax * im_height)
+    (left,  right, top, bottom) = (xmin * im_width, xmax * im_width, ymin * im_height, ymax * im_height)
+    
+    #car_recognition = image[top:bottom, left:right]
+    
   else:
-    (left, right, top, bottom) = (xmin, xmax, ymin, ymax)
-  draw.line([(left, top), (left, bottom), (right, bottom),
-             (right, top), (left, top)], width=thickness, fill=color)
+    area = (left, right, top, bottom) = (xmin, xmax, ymin, ymax)
+    #car_recognition = image[top:bottom, left:right]
+
+  #if im_width*0.6 <= left
+  draw.line([(left, top), (left, bottom), (right, bottom), (right, top), (left, top)], width=thickness, fill=color)
+  
+  #cr_image = image.crop((left, top, right, bottom))
+  #cr_image.show()
+  
   try:
     font = ImageFont.truetype('arial.ttf', 24)
   except IOError:
@@ -215,22 +240,23 @@ def draw_bounding_box_on_image(image,
     text_bottom = top
   else:
     text_bottom = bottom + total_display_str_height
+    
   # Reverse list and print from bottom to top.
-  for display_str in display_str_list[::-1]:
+  for display_str in display_str_list[::-1]: #이미지 리스트 반복
+    # print(type(display_str) ) type = str
+    print(display_str + "   가로폭 : " + str(right - left) )
+    
     text_width, text_height = font.getsize(display_str)
+    
     margin = np.ceil(0.05 * text_height)
-    draw.rectangle(
-        [(left, text_bottom - text_height - 2 * margin), (left + text_width,
-                                                          text_bottom)],
-        fill=color)
-    draw.text(
-        (left + margin, text_bottom - text_height - margin),
-        display_str,
-        fill='black',
-        font=font)
+    draw.rectangle( [(left, text_bottom - text_height - 2 * margin), (left + text_width, text_bottom)], fill=color)
+
+    draw.text( (left + margin, text_bottom - text_height - margin), display_str, fill='black', font=font)
     text_bottom -= text_height - 2 * margin
 
+#def draw_bounding_crop_image(image):
 
+  
 def draw_bounding_boxes_on_image_array(image,
                                        boxes,
                                        color='red',
@@ -284,12 +310,15 @@ def draw_bounding_boxes_on_image(image,
   boxes_shape = boxes.shape
   if not boxes_shape:
     return
+  
   if len(boxes_shape) != 2 or boxes_shape[1] != 4:
     raise ValueError('Input must be of size [N, 4]')
+  
   for i in range(boxes_shape[0]):
     display_str_list = ()
     if display_str_list_list:
       display_str_list = display_str_list_list[i]
+      
     draw_bounding_box_on_image(image, boxes[i, 0], boxes[i, 1], boxes[i, 2],
                                boxes[i, 3], color, thickness, display_str_list)
 
@@ -536,6 +565,7 @@ def draw_side_by_side_evaluation_image(eval_dict,
 
   for indx in range(eval_dict[input_data_fields.original_image].shape[0]):
     instance_masks = None
+    
     if detection_fields.detection_masks in eval_dict:
       instance_masks = tf.cast(
           tf.expand_dims(
@@ -572,6 +602,7 @@ def draw_side_by_side_evaluation_image(eval_dict,
         max_boxes_to_draw=max_boxes_to_draw,
         min_score_thresh=min_score_thresh,
         use_normalized_coordinates=use_normalized_coordinates)
+    
     images_with_groundtruth = draw_bounding_boxes_on_image_tensors(
         tf.expand_dims(
             eval_dict[input_data_fields.original_image][indx], axis=0),
@@ -597,6 +628,9 @@ def draw_side_by_side_evaluation_image(eval_dict,
         use_normalized_coordinates=use_normalized_coordinates)
     images_with_detections_list.append(
         tf.concat([images_with_detections, images_with_groundtruth], axis=2))
+    #print(indx)
+    #end for indx
+    
   return images_with_detections_list
 
 
@@ -754,8 +788,12 @@ def visualize_boxes_and_labels_on_image_array(
   box_to_track_ids_map = {}
   if not max_boxes_to_draw:
     max_boxes_to_draw = boxes.shape[0]
-  for i in range(min(max_boxes_to_draw, boxes.shape[0])):
+    
+  for i in range(min(max_boxes_to_draw, boxes.shape[0])): # 0 =< i < 20
+    #print("박스타입" + str(type(boxes.shape[0])) + str(boxes.shape[0]) + "i갑" + str(i) )
+    
     if scores is None or scores[i] > min_score_thresh:
+      #최소 값 이상 0부터 내가설정한 값까지
       box = tuple(boxes[i].tolist())
       if instance_masks is not None:
         box_to_instance_masks_map[box] = instance_masks[i]
@@ -765,28 +803,33 @@ def visualize_boxes_and_labels_on_image_array(
         box_to_keypoints_map[box].extend(keypoints[i])
       if track_ids is not None:
         box_to_track_ids_map[box] = track_ids[i]
-      if scores is None:
+      if scores is None: #색
         box_to_color_map[box] = groundtruth_box_visualization_color
-      else:
-        display_str = ''
+        
+      else: #리스트 풀어서 박스 영역에 확률 표시
+        display_str = '' #화면에 표시될 문자열
         if not skip_labels:
           if not agnostic_mode:
             if classes[i] in category_index.keys():
               class_name = category_index[classes[i]]['name']
             else:
               class_name = 'N/A'
-            display_str = str(class_name)
-        if not skip_scores:
+            display_str = str(class_name) #그렇게 문자열 저장
+            
+        if not skip_scores: #화면에 표시될 확률값 계산 형변
           if not display_str:
             display_str = '{}%'.format(int(100*scores[i]))
           else:
             display_str = '{}: {}%'.format(display_str, int(100*scores[i]))
-        if not skip_track_ids and track_ids is not None:
+            
+        if not skip_track_ids and track_ids is not None: #위치값
           if not display_str:
             display_str = 'ID {}'.format(track_ids[i])
           else:
             display_str = '{}: ID {}'.format(display_str, track_ids[i])
+            
         box_to_display_str_map[box].append(display_str)
+
         if agnostic_mode:
           box_to_color_map[box] = 'DarkOrange'
         elif track_ids is not None:
@@ -798,21 +841,41 @@ def visualize_boxes_and_labels_on_image_array(
               classes[i] % len(STANDARD_COLORS)]
 
   # Draw all boxes onto image.
+  # 모든 이미지에 박스를 그리게 되는데...
+  
   for box, color in box_to_color_map.items():
     ymin, xmin, ymax, xmax = box
-    if instance_masks is not None:
+    print("box값:" + str(box) + "깔라값 : " + str(color) )
+    #type(box) = tuple 가로세로 정보를 갖고있음
+    
+    '''
+      instance_masks: a numpy array of shape [N, image_height, image_width] with
+      values ranging between 0 and 1, can be None.
+      instance_masks : 모양이 [N, image_height, image_width] 인 numpy 배열
+      0과 1 사이의 값은 None 일 수 있습니다.
+    '''
+    if instance_masks is not None: #null값이 아니라면 이미지 배열에 저장
+      
       draw_mask_on_image_array(
           image,
           box_to_instance_masks_map[box],
           color=color
       )
-    if instance_boundaries is not None:
+      '''
+      instance_boundaries: a numpy array of shape [N, image_height, image_width]
+      with values ranging between 0 and 1, can be None.
+      instance_boundaries : numpy 배열 모양 [N, image_height, image_width]
+      0과 1 사이의 값으로 None이 될 수 있습니다.
+      
+      '''
+    if instance_boundaries is not None: #null값이 아니라면 저
       draw_mask_on_image_array(
           image,
           box_to_instance_boundaries_map[box],
           color='red',
           alpha=1.0
       )
+      
     draw_bounding_box_on_image_array(
         image,
         ymin,
@@ -823,6 +886,9 @@ def visualize_boxes_and_labels_on_image_array(
         thickness=line_thickness,
         display_str_list=box_to_display_str_map[box],
         use_normalized_coordinates=use_normalized_coordinates)
+     
+    #keypoints: a numpy array of shape [N, num_keypoints, 2], can be None
+        
     if keypoints is not None:
       draw_keypoints_on_image_array(
           image,
