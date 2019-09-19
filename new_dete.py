@@ -26,7 +26,6 @@ import NumberPlate as NP
 time1 = time.time()
 MIN_ratio = 0.85
 
-
 MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
 #MODEL_NAME = 'faster_rcnn_inception_v2_coco_2018_01_28'
 GRAPH_FILE_NAME = 'frozen_inference_graph.pb'
@@ -177,17 +176,19 @@ while True:
     if key == ord('p'):
         while True:
             key2 = cv2.waitKey(1) or 0xff
+            
+            frame = cv2.resize(frame, None, fx = 0.5, fy = 0.5, interpolation=cv2.INTER_LINEAR)
             cv2.imshow('frame', frame)
 
             if key2 == ord('p'):
                 break
 
+    frame = cv2.resize(frame, None, fx = 0.5, fy = 0.5, interpolation=cv2.INTER_LINEAR)
     cv2.imshow('frame',frame)
 
-    if key == 27: 
+    if key == ord("q"): 
         break
 
-cap.release()
 cv2.destroyAllWindows()
 
 

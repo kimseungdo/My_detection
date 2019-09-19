@@ -20,6 +20,7 @@ The functions do not return a value, instead they modify the image itself.
 
 """
 import cv2
+
 import abc
 import collections
 # Set headless-friendly backend.
@@ -33,8 +34,12 @@ import PIL.ImageFont as ImageFont
 import six
 import tensorflow as tf
 
+from datetime import date, time, datetime
+
 from object_detection.core import standard_fields as fields
 from object_detection.utils import shape_utils
+
+
 
 _TITLE_LEFT_MARGIN = 10
 _TITLE_TOP_MARGIN = 10
@@ -166,6 +171,8 @@ def draw_bounding_box_on_image_array(image,
   np.copyto(image, np.array(image_pil))
   #print("image_pil:" + str(image_pil))
   #print("image:" + str(image))
+#end def draw_bounding_box_on_image_array
+
 
 def draw_bounding_box_on_image(image,
                                ymin,
@@ -176,7 +183,6 @@ def draw_bounding_box_on_image(image,
                                thickness=4,
                                display_str_list=(),
                                use_normalized_coordinates=True):
-  
   """Adds a bounding box to an image.
 
   Bounding box coordinates can be specified in either absolute (pixel) or
@@ -206,7 +212,6 @@ def draw_bounding_box_on_image(image,
   # print(type(draw)) <class 'PIL.ImageDraw.ImageDraw'>
   # print(draw) <PIL.ImageDraw.ImageDraw object at 0x000001FAC2BA9550> 주소값은 이미지
   
-  
   im_width, im_height = image.size
   
   if use_normalized_coordinates:
@@ -217,7 +222,8 @@ def draw_bounding_box_on_image(image,
   else:
     area = (left, right, top, bottom) = (xmin, xmax, ymin, ymax)
     #car_recognition = image[top:bottom, left:right]
-
+    
+  '''원형코드
   #if im_width*0.6 <= left
   draw.line([(left, top), (left, bottom), (right, bottom), (right, top), (left, top)], width=thickness, fill=color)
   
@@ -233,6 +239,7 @@ def draw_bounding_box_on_image(image,
   # box exceeds the top of the image, stack the strings below the bounding box
   # instead of above.
   display_str_heights = [font.getsize(ds)[1] for ds in display_str_list]
+
   # Each display_str has a top and bottom margin of 0.05x.
   total_display_str_height = (1 + 2 * 0.05) * sum(display_str_heights)
 
@@ -244,19 +251,452 @@ def draw_bounding_box_on_image(image,
   # Reverse list and print from bottom to top.
   for display_str in display_str_list[::-1]: #이미지 리스트 반복
     # print(type(display_str) ) type = str
-    print(display_str + "   가로폭 : " + str(right - left) )
-    
-    text_width, text_height = font.getsize(display_str)
-    
-    margin = np.ceil(0.05 * text_height)
-    draw.rectangle( [(left, text_bottom - text_height - 2 * margin), (left + text_width, text_bottom)], fill=color)
+    #print(display_str + "   가로폭 : " + str(right - left) )
+    if im_width*0.6 <= right-left:
+      print(display_str + "   가로폭 : " + str(right - left) )
+      
+      text_width, text_height = font.getsize(display_str)
+      
+      margin = np.ceil(0.05 * text_height)
+      draw.rectangle( [(left, text_bottom - text_height - 2 * margin), (left + text_width, text_bottom)], fill=color)
 
-    draw.text( (left + margin, text_bottom - text_height - margin), display_str, fill='black', font=font)
-    text_bottom -= text_height - 2 * margin
+      draw.text( (left + margin, text_bottom - text_height - margin), display_str, fill='black', font=font)
+      text_bottom -= text_height - 2 * margin
+  '''
+  
+  if im_width*0.6 <= right-left:
+    draw.line([(left, top), (left, bottom), (right, bottom), (right, top), (left, top)], width=thickness, fill=color)
+    
+    #cr_image = image.crop((left, top, right, bottom))
+    #cr_image.show()
+    
+    try:
+      font = ImageFont.truetype('arial.ttf', 24)
+    except IOError:
+      font = ImageFont.load_default() 
 
+    # If the total height of the display strings added to the top of the bounding
+    # box exceeds the top of the image, stack the strings below the bounding box
+    # instead of above.
+    display_str_heights = [font.getsize(ds)[1] for ds in display_str_list]
+
+    # Each display_str has a top and bottom margin of 0.05x.
+    total_display_str_height = (1 + 2 * 0.05) * sum(display_str_heights)
+
+    if top > total_display_str_height:
+      text_bottom = top
+    else:
+      text_bottom = bottom + total_display_str_height
+      
+    # Reverse list and print from bottom to top.
+    for display_str in display_str_list[::-1]: #이미지 리스트 반복
+      # print(type(display_str) ) type = str
+      #print(display_str + "   가로폭 : " + str(right - left) )
+      if im_width*0.6 <= right-left:
+        print(display_str + "   가로폭 : " + str(right - left) )
+
+        
+        cr_image = image.crop((left, top, right, bottom))
+        cr_image.save("car_image/" + what_now_time() + str(display_str[:3]) + str(int(right - left)) + ".jpg")
+
+
+
+        ocv = cv2.cvtColor(np.array(cr_image), cv2.COLOR_RGB2BGR)
+        cv2.imshow('cut', ocv)
+        #return cr_image
+
+        number_recognition(ocv)        
+      
+        text_width, text_height = font.getsize(display_str)
+        
+        margin = np.ceil(0.05 * text_height)
+        draw.rectangle( [(left, text_bottom - text_height - 2 * margin), (left + text_width, text_bottom)], fill=color)
+
+        draw.text( (left + margin, text_bottom - text_height - margin), display_str, fill='black', font=font)
+        text_bottom -= text_height - 2 * margin
 #def draw_bounding_crop_image(image):
 
+def what_now_time():
+  day = datetime.now()
+  return str('{0.year:04}{0.month:02}{0.day:02}-{0.hour:02}h{0.minute:02}m{0.second:02}s'.format(day) )
+
+def number_recognition(cut_image):
+    img_ori = cv2.imread(cut_image) #이미지 불러오기
+    print("불러오기는 했음")
+    prevtime = time.time() # 걸린 시간 체크하는 메서드
+
+    height, width, channel = img_ori.shape #변수 선언
+
+    numcheck = 0 # 번호판 문자열 검사할 변수
+    charsok = 0 # 번호판 글자를 제대로 읽었는지에 대해 반복문을 결정할 변수
+    add_w_padding, add_h_padding = 0, 0;
+
+    # --Convert Image to Grayscale--
+
+    # hsv = cv2.cvtColor(img_ori, cv2.COLOR_BGR2HSV)
+    # gray = hsv[:,:,2]
+    gray = cv2.cvtColor(img_ori, cv2.COLOR_BGR2GRAY) #이미지 흑백변환
+
+    #cv2.imwrite('01.jpg', gray) #흑백 이미지 저장
+
+    # --Maximize Contrast(Optional)--
+
+    structuringElement = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+
+    imgTopHat = cv2.morphologyEx(gray, cv2.MORPH_TOPHAT, structuringElement)
+    imgBlackHat = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, structuringElement)
+
+    imgGrayscalePlusTopHat = cv2.add(gray, imgTopHat)
+    gray = cv2.subtract(imgGrayscalePlusTopHat, imgBlackHat)
+
+    #cv2.imwrite('02.jpg', gray) #Maximize Contrast(Optional)
+
+    # --Adaptive Thresholding--
+
+    img_blurred = cv2.GaussianBlur(gray, ksize=(5, 5), sigmaX=0)
+
+    img_thresh = cv2.adaptiveThreshold(
+        img_blurred,
+        maxValue=255.0,
+        adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        thresholdType=cv2.THRESH_BINARY_INV,
+        blockSize=19,
+        C=9
+    )
+
+    #cv2.imwrite('03.jpg', img_thresh) #쓰레시홀딩 적용 이미지 저장
+
+    # --Find Contours--
+
+    contours, hierarchy = cv2.findContours(
+        img_thresh,
+        cv2.RETR_LIST,
+        cv2.CHAIN_APPROX_SIMPLE
+    )
+
+    temp_result = np.zeros((height, width, channel), dtype=np.uint8)
+
+    cv2.drawContours(temp_result, contours, -1, (255, 255, 255))
+
+    #cv2.imwrite('04.jpg', temp_result) #Contours 찾기
+
+    # --Prepare Data--
+
+    temp_result = np.zeros((height, width, channel), dtype=np.uint8)
+
+    contours_dict = []
+
+    for contour in contours:
+        x, y, w, h = cv2.boundingRect(contour)
+        cv2.rectangle(temp_result, pt1=(x, y), pt2=(x + w, y + h), color=(255, 255, 255), thickness=2)
+
+        # insert to dict
+        contours_dict.append({
+            'contour': contour,
+            'x': x,
+            'y': y,
+            'w': w,
+            'h': h,
+            'cx': x + (w / 2),
+            'cy': y + (h / 2)
+        })
+
+    #cv2.imwrite('05.jpg', temp_result) #데이터 비교(네모영역찾기)
+
+    # --Select Candidates by Char Size--
+
+    MIN_AREA = 80
+    MIN_WIDTH, MIN_HEIGHT = 2, 8
+    MIN_RATIO, MAX_RATIO = 0.25, 1.0
+
+    possible_contours = []
+
+    cnt = 0
+    for d in contours_dict:
+        area = d['w'] * d['h']
+        ratio = d['w'] / d['h']
+
+        if area > MIN_AREA \
+                and d['w'] > MIN_WIDTH and d['h'] > MIN_HEIGHT \
+                and MIN_RATIO < ratio < MAX_RATIO:
+            d['idx'] = cnt
+            cnt += 1
+            possible_contours.append(d)
+
+    # visualize possible contours
+    temp_result = np.zeros((height, width, channel), dtype=np.uint8)
+
+    for d in possible_contours:
+        #     cv2.drawContours(temp_result, d['contour'], -1, (255, 255, 255))
+        cv2.rectangle(temp_result, pt1=(d['x'], d['y']), pt2=(d['x'] + d['w'], d['y'] + d['h']), color=(255, 255, 255), thickness=2)
+
+    #cv2.imwrite('06.jpg', temp_result) #contours영역 시각화
+
+    # --Select Candidates by Arrangement of Contours--
+
+    MAX_DIAG_MULTIPLYER = 4.7  # 5
+    MAX_ANGLE_DIFF = 13  # 12.0
+    MAX_AREA_DIFF = 0.5  # 0.5
+    MAX_WIDTH_DIFF = 0.8 # 0.8
+    MAX_HEIGHT_DIFF = 0.2 # 0.2
+    MIN_N_MATCHED = 4  # 3
+
+
+    def find_chars(contour_list):
+        matched_result_idx = []
+
+        for d1 in contour_list:
+            matched_contours_idx = []
+            for d2 in contour_list:
+                if d1['idx'] == d2['idx']:
+                    continue
+
+                dx = abs(d1['cx'] - d2['cx'])
+                dy = abs(d1['cy'] - d2['cy'])
+
+                diagonal_length1 = np.sqrt(d1['w'] ** 2 + d1['h'] ** 2)
+
+                distance = np.linalg.norm(np.array([d1['cx'], d1['cy']]) - np.array([d2['cx'], d2['cy']]))
+                if dx == 0:
+                    angle_diff = 90
+                else:
+                    angle_diff = np.degrees(np.arctan(dy / dx))
+                area_diff = abs(d1['w'] * d1['h'] - d2['w'] * d2['h']) / (d1['w'] * d1['h'])
+                width_diff = abs(d1['w'] - d2['w']) / d1['w']
+                height_diff = abs(d1['h'] - d2['h']) / d1['h']
+
+                if distance < diagonal_length1 * MAX_DIAG_MULTIPLYER \
+                        and angle_diff < MAX_ANGLE_DIFF and area_diff < MAX_AREA_DIFF \
+                        and width_diff < MAX_WIDTH_DIFF and height_diff < MAX_HEIGHT_DIFF:
+                    matched_contours_idx.append(d2['idx'])
+
+            # append this contour
+            matched_contours_idx.append(d1['idx'])
+
+            if len(matched_contours_idx) < MIN_N_MATCHED:
+                continue
+
+            matched_result_idx.append(matched_contours_idx)
+
+            unmatched_contour_idx = []
+            for d4 in contour_list:
+                if d4['idx'] not in matched_contours_idx:
+                    unmatched_contour_idx.append(d4['idx'])
+
+            unmatched_contour = np.take(possible_contours, unmatched_contour_idx)
+
+            # recursive
+            recursive_contour_list = find_chars(unmatched_contour)
+
+            for idx in recursive_contour_list:
+                matched_result_idx.append(idx)
+
+            break
+
+        return matched_result_idx
+
+
+    result_idx = find_chars(possible_contours)
+
+    matched_result = []
+    for idx_list in result_idx:
+        matched_result.append(np.take(possible_contours, idx_list))
+
+    # visualize possible contours
+    temp_result = np.zeros((height, width, channel), dtype=np.uint8)
+
+    for r in matched_result:
+        for d in r:
+            #         cv2.drawContours(temp_result, d['contour'], -1, (255, 255, 255))
+            cv2.rectangle(temp_result, pt1=(d['x'], d['y']), pt2=(d['x'] + d['w'], d['y'] + d['h']), color=(255, 255, 255),
+                          thickness=2)
+
+    #cv2.imwrite('07.jpg', temp_result) #글자영역 추출
+
+    # --Rotate Plate Images--
+
+    plate_imgs = []
+    plate_infos = []
+
+    longest_idx, longest_text = -1, 0
+    plate_chars = []
+
+    while charsok == 0:
+        #print("와일문이 돌았다")
+        PLATE_WIDTH_PADDING = 1.267 + add_w_padding  # 1.3 #1.265
+        #print("패딩값")
+        #print(PLATE_WIDTH_PADDING)
+        PLATE_HEIGHT_PADDING = 1.53 + add_h_padding  # 1.5 #1.55
+        MIN_PLATE_RATIO = 3 #3
+        MAX_PLATE_RATIO = 10 #10
+
+        for i, matched_chars in enumerate(matched_result):
+            sorted_chars = sorted(matched_chars, key=lambda x: x['cx'])
+
+            plate_cx = (sorted_chars[0]['cx'] + sorted_chars[-1]['cx']) / 2
+            plate_cy = (sorted_chars[0]['cy'] + sorted_chars[-1]['cy']) / 2
+
+            plate_width = (sorted_chars[-1]['x'] + sorted_chars[-1]['w'] - sorted_chars[0]['x']) * PLATE_WIDTH_PADDING
+
+            sum_height = 0
+            for d in sorted_chars:
+                sum_height += d['h']
+
+            plate_height = int(sum_height / len(sorted_chars) * PLATE_HEIGHT_PADDING)
+
+            triangle_height = sorted_chars[-1]['cy'] - sorted_chars[0]['cy']
+            triangle_hypotenus = np.linalg.norm(
+                np.array([sorted_chars[0]['cx'], sorted_chars[0]['cy']]) -
+                np.array([sorted_chars[-1]['cx'], sorted_chars[-1]['cy']])
+            )
+
+            angle = np.degrees(np.arcsin(triangle_height / triangle_hypotenus))
+
+            rotation_matrix = cv2.getRotationMatrix2D(center=(plate_cx, plate_cy), angle=angle, scale=1.0)
+
+            img_rotated = cv2.warpAffine(img_thresh, M=rotation_matrix, dsize=(width, height))
+
+            img_cropped = cv2.getRectSubPix(
+                img_rotated,
+                patchSize=(int(plate_width), int(plate_height)),
+                center=(int(plate_cx), int(plate_cy))
+            )
+
+            if img_cropped.shape[1] / img_cropped.shape[0] < MIN_PLATE_RATIO or img_cropped.shape[1] / img_cropped.shape[
+                0] < MIN_PLATE_RATIO > MAX_PLATE_RATIO:
+                continue
+
+            plate_imgs.append(img_cropped)
+            plate_infos.append({
+                'x': int(plate_cx - plate_width / 2),
+                'y': int(plate_cy - plate_height / 2),
+                'w': int(plate_width),
+                'h': int(plate_height)
+            })
+
+        #cv2.imwrite('08.jpg', img_cropped) #사진 돌려서 각도 맞추기(Rotate)
+
+        # --Another Thresholding to Find Chars--
+
+        for i, plate_img in enumerate(plate_imgs):
+            if numcheck > 3: # 예상되는 번호판 영역에서 문자열을 검사해 숫자 3개가 넘는다면(번호판일 확률이 높다면)
+                break # for문을 멈춤
+
+            plate_img = cv2.resize(plate_img, dsize=(0, 0), fx=1.6, fy=1.6)
+            _, plate_img = cv2.threshold(plate_img, thresh=0.0, maxval=255.0, type=cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+
+            # find contours again (same as above)
+            contours, hierarchy = cv2.findContours(plate_img, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
+            plate_min_x, plate_min_y = plate_img.shape[1], plate_img.shape[0]
+            plate_max_x, plate_max_y = 0, 0
+
+            for contour in contours:
+                x, y, w, h = cv2.boundingRect(contour)
+
+                area = w * h
+                ratio = w / h
+
+                if area > MIN_AREA \
+                        and w > MIN_WIDTH and h > MIN_HEIGHT \
+                        and MIN_RATIO < ratio < MAX_RATIO:
+                    if x < plate_min_x:
+                        plate_min_x = x
+                    if y < plate_min_y:
+                        plate_min_y = y
+                    if x + w > plate_max_x:
+                        plate_max_x = x + w
+                    if y + h > plate_max_y:
+                        plate_max_y = y + h
+
+            img_result = plate_img[plate_min_y:plate_max_y, plate_min_x:plate_max_x]
+
+            img_result = cv2.GaussianBlur(img_result, ksize=(3, 3), sigmaX=0) #최종값 굵기조정
+            _, img_result = cv2.threshold(img_result, thresh=0.0, maxval=255.0, type=cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+            img_result = cv2.copyMakeBorder(img_result, top=10, bottom=10, left=10, right=10, borderType=cv2.BORDER_CONSTANT,
+                                            value=(0, 0, 0))
+
+            cv2.imwrite('00.jpg', img_result)
+            chars = pytesseract.image_to_string(Image.open('00.jpg'), config='--psm 7 --oem 0', lang='kor')
+            nowtime = time.time()
+            sec = nowtime - prevtime
+            print("걸린시간 %0.5f" % sec)
+            print("이미지 불러 온 후 글자 : " + chars)
+
+            result_chars = ''
+            has_digit = False
+            for c in chars:
+                if ord('가') <= ord(c) <= ord('힣') or c.isdigit():
+                    if c.isdigit():
+                        has_digit = True
+                    result_chars += c
+            nowtime = time.time()
+            sec = nowtime - prevtime
+            print("result_chars : " + result_chars)
+            plate_chars.append(result_chars)
+
+            for j in range(len(result_chars)):
+                if len(result_chars) < 7:
+                    break
+                if j == 2 and result_chars[j].isdigit() == True:
+                    break
+                if j != 2 and result_chars[j].isdigit() == False:
+                    break
+                if (j == 2 and result_chars[j].isdigit() == False) and (j == 3 and result_chars[j].isdigit() == False):
+                    break
+                if 6 <= j <= 7 and result_chars[j].isdigit() == True:
+                    charsok = 1
+
+            if has_digit and len(result_chars) > longest_text:
+                longest_idx = i
+
+            for numch, in chars:
+                if numch.isdigit() == True:
+                    numcheck += 1
+
+        cv2.imwrite('09.jpg', img_result)
+
+        # --Result--
+
+        info = plate_infos[longest_idx]
+        chars = plate_chars[longest_idx]
+
+        for n in range(len(chars)):
+            if chars[0].isdigit() == False:
+                print("첫문자 오류 : " + chars)
+                chars = chars[1:chars.__len__()]
+            if chars[len(chars)-1].isdigit() == False:
+                print("마지막문자 오류 : " + chars)
+                chars = chars[0:(chars.__len__()-1)]
+
+        print(chars)
+        print("걸린시간 %0.1f" %sec)
+        img_out = img_ori.copy()
+
+        for j in range(len(chars)):
+            if len(chars) < 7:
+                add_w_padding += 0.1
+                break
+            if j == 2 and chars[j].isdigit() == True:
+                add_w_padding += 0.1
+                break
+            if j != 2 and chars[j].isdigit() == False:
+                add_w_padding += 0.1
+                break
+            if 6 <= j <= 7 and chars[j].isdigit() == True:
+                charsok = 1
+        numcheck = 0
+
+        if add_w_padding == 0.5:
+            add_h_padding += 0.1
+            add_w_padding = 0
+
+        if add_h_padding == 0.5:
+            break
+
+    print("최종 값 : " + chars)
   
+
 def draw_bounding_boxes_on_image_array(image,
                                        boxes,
                                        color='red',
