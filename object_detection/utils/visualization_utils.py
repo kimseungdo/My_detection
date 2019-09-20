@@ -34,7 +34,9 @@ import PIL.ImageFont as ImageFont
 import six
 import tensorflow as tf
 
-from datetime import date, time, datetime
+import time
+import pytesseract
+from datetime import date, datetime
 
 from object_detection.core import standard_fields as fields
 from object_detection.utils import shape_utils
@@ -320,9 +322,11 @@ def what_now_time():
   day = datetime.now()
   return str('{0.year:04}{0.month:02}{0.day:02}-{0.hour:02}h{0.minute:02}m{0.second:02}s'.format(day) )
 
-def number_recognition(cut_image):
-    img_ori = cv2.imread(cut_image) #이미지 불러오기
+def number_recognition(img_ori):
+    print(type(img_ori) )
+    #img_ori = cv2.imread(cut_image) #이미지 불러오기
     print("불러오기는 했음")
+
     prevtime = time.time() # 걸린 시간 체크하는 메서드
 
     height, width, channel = img_ori.shape #변수 선언
@@ -365,7 +369,7 @@ def number_recognition(cut_image):
     )
 
     #cv2.imwrite('03.jpg', img_thresh) #쓰레시홀딩 적용 이미지 저장
-
+    
     # --Find Contours--
 
     contours, hierarchy = cv2.findContours(
@@ -378,7 +382,7 @@ def number_recognition(cut_image):
 
     cv2.drawContours(temp_result, contours, -1, (255, 255, 255))
 
-    #cv2.imwrite('04.jpg', temp_result) #Contours 찾기
+    cv2.imwrite('04.jpg', temp_result) #Contours 찾기
 
     # --Prepare Data--
 
@@ -401,7 +405,7 @@ def number_recognition(cut_image):
             'cy': y + (h / 2)
         })
 
-    #cv2.imwrite('05.jpg', temp_result) #데이터 비교(네모영역찾기)
+    cv2.imwrite('05.jpg', temp_result) #데이터 비교(네모영역찾기)
 
     # --Select Candidates by Char Size--
 
@@ -511,7 +515,7 @@ def number_recognition(cut_image):
             cv2.rectangle(temp_result, pt1=(d['x'], d['y']), pt2=(d['x'] + d['w'], d['y'] + d['h']), color=(255, 255, 255),
                           thickness=2)
 
-    #cv2.imwrite('07.jpg', temp_result) #글자영역 추출
+    cv2.imwrite('07.jpg', temp_result) #글자영역 추출
 
     # --Rotate Plate Images--
 
