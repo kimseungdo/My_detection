@@ -14,7 +14,11 @@ from multiprocessing import Process
 
 
 from object_detection.utils import label_map_util as lmu
-from object_detection.utils import visualization_utils as vis_util
+from object_detection.utils import visualization_utils2 as vis_util
+'''
+객체인식 원형코드 사용시from object_detection.utils import visualization_utils as vis_util
+객체인식 변형코드 사용시 from object_detection.utils import visualization_utils2 as vis_util <<<----- 번호판 인식모델
+'''
 from object_detection.utils import ops as utils_ops
 
 #file import
@@ -85,7 +89,7 @@ print("make tensor time : %0.5f" % (time.time() - time1))
     
 #capture = cv2.VideoCapture(0)
 #capture = cv2.VideoCapture('20190916_162900.mp4')
-capture = cv2.VideoCapture("현백(순차주행_병목_HD_기울임_8fps).mp4")
+capture = cv2.VideoCapture("20190916_165145.mp4")
 prevtime = 0
 
 #thread_1 = Process(target = find_detection_target, args = (categories_index, classes, scores))#쓰레드 생성

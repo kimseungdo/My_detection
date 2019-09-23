@@ -16,6 +16,11 @@ from threading import Thread
 from multiprocessing import Process, Queue
 from object_detection.utils import label_map_util as lmu
 from object_detection.utils import visualization_utils as vis_util
+'''
+객체인식 원형코드 사용시from object_detection.utils import visualization_utils as vis_util
+객체인식 변형코드 사용시 from object_detection.utils import visualization_utils2 as vis_util <<<----- 번호판 인식모델
+'''
+
 from object_detection.utils import ops as utils_ops
 
 from time import sleep
@@ -223,7 +228,7 @@ class Thread(QThread):
     changePixmap = pyqtSignal(QImage)
 
     def run(self):
-        sleep(6)
+        sleep(12)
 
         prevtime = 0
 
