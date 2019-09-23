@@ -266,7 +266,7 @@ def draw_bounding_box_on_image(image,
       text_bottom -= text_height - 2 * margin
   '''
   
-  if im_width*0.6 <= right-left:
+  if im_width*0.65 <= right-left and im_width*0.8 >= right-left:
     draw.line([(left, top), (left, bottom), (right, bottom), (right, top), (left, top)], width=thickness, fill=color)
     
     #cr_image = image.crop((left, top, right, bottom))
@@ -294,21 +294,22 @@ def draw_bounding_box_on_image(image,
     for display_str in display_str_list[::-1]: #이미지 리스트 반복
       # print(type(display_str) ) type = str
       #print(display_str + "   가로폭 : " + str(right - left) )
-      if im_width*0.6 <= right-left:
-        print(display_str + "   가로폭 : " + str(right - left) )
+      if im_width*0.65 <= right-left and im_width*0.8 >= right-left:
+        #print(display_str + "   가로폭 : " + str(right - left) )
 
         
-        cr_image = image.crop((left, top, right, bottom))
+        cr_image = image.crop((left, top, right, bottom) )
+        
         cr_image.save("car_image/" + what_now_time() + str(display_str[:3]) + str(int(right - left)) + ".jpg")
 
 
+        cr_image = image.crop((left*2+160, top+200, right, bottom) )
 
-        ocv = cv2.cvtColor(np.array(cr_image), cv2.COLOR_RGB2BGR)
-        cv2.imshow('cut', ocv)
+        #cv2.imshow('cut', ocv)
         #return cr_image
 
-        number_recognition(ocv)        
-      
+        plate = number_recognition(cr_image)       #return 번호판이름 
+        cr_image.save("car_image/" + "pLate-" + str(plate) + ".jpg")
         text_width, text_height = font.getsize(display_str)
         
         margin = np.ceil(0.05 * text_height)
@@ -320,13 +321,14 @@ def draw_bounding_box_on_image(image,
 
 def what_now_time():
   day = datetime.now()
-  return str('{0.year:04}{0.month:02}{0.day:02}-{0.hour:02}h{0.minute:02}m{0.second:02}s'.format(day) )
+  return str('{0.year:04}{0.month:02}{0.day:02}_{0.hour:02}h{0.minute:02}m{0.second:02}s'.format(day) )
 
 def number_recognition(img_ori):
-    print(type(img_ori) )
+    #print(type(img_ori) )
     #img_ori = cv2.imread(cut_image) #이미지 불러오기
-    print("불러오기는 했음")
-
+    #print("불러오기는 했음")
+    img_ori = cv2.cvtColor(np.array(img_ori), cv2.COLOR_RGB2BGR)
+    
     prevtime = time.time() # 걸린 시간 체크하는 메서드
 
     height, width, channel = img_ori.shape #변수 선언
@@ -411,7 +413,7 @@ def number_recognition(img_ori):
 
     MIN_AREA = 80
     MIN_WIDTH, MIN_HEIGHT = 2, 8
-    MIN_RATIO, MAX_RATIO = 0.25, 1.0
+    MIN_RATIO, MAX_RATIO = 0.25, 1.3
 
     possible_contours = []
 
@@ -526,8 +528,8 @@ def number_recognition(img_ori):
     plate_chars = []
 
     while charsok == 0:
-        #print("와일문이 돌았다")
-        PLATE_WIDTH_PADDING = 1.267 + add_w_padding  # 1.3 #1.265
+        print("와일문이 돌았다")
+        PLATE_WIDTH_PADDING = 1.265 + add_w_padding  # 1.3 #1.265
         #print("패딩값")
         #print(PLATE_WIDTH_PADDING)
         PLATE_HEIGHT_PADDING = 1.53 + add_h_padding  # 1.5 #1.55
@@ -624,8 +626,8 @@ def number_recognition(img_ori):
             chars = pytesseract.image_to_string(Image.open('00.jpg'), config='--psm 7 --oem 0', lang='kor')
             nowtime = time.time()
             sec = nowtime - prevtime
-            print("걸린시간 %0.5f" % sec)
-            print("이미지 불러 온 후 글자 : " + chars)
+            #print("걸린시간 %0.5f" % sec)
+            #print("이미지 불러 온 후 글자 : " + chars)
 
             result_chars = ''
             has_digit = False
@@ -636,7 +638,7 @@ def number_recognition(img_ori):
                     result_chars += c
             nowtime = time.time()
             sec = nowtime - prevtime
-            print("result_chars : " + result_chars)
+            #print("result_chars : " + result_chars)
             plate_chars.append(result_chars)
 
             for j in range(len(result_chars)):
@@ -657,7 +659,8 @@ def number_recognition(img_ori):
             for numch, in chars:
                 if numch.isdigit() == True:
                     numcheck += 1
-
+        #end for
+                    
         cv2.imwrite('09.jpg', img_result)
 
         # --Result--
@@ -667,14 +670,14 @@ def number_recognition(img_ori):
 
         for n in range(len(chars)):
             if chars[0].isdigit() == False:
-                print("첫문자 오류 : " + chars)
+                #print("첫문자 오류 : " + chars)
                 chars = chars[1:chars.__len__()]
             if chars[len(chars)-1].isdigit() == False:
-                print("마지막문자 오류 : " + chars)
+                #print("마지막문자 오류 : " + chars)
                 chars = chars[0:(chars.__len__()-1)]
 
-        print(chars)
-        print("걸린시간 %0.1f" %sec)
+        #print(chars)
+        #print("걸린시간 %0.1f" %sec)
         img_out = img_ori.copy()
 
         for j in range(len(chars)):
@@ -697,10 +700,16 @@ def number_recognition(img_ori):
 
         if add_h_padding == 0.5:
             break
-
+    nowtime = time.time()
+    sec = nowtime - prevtime
+    print("걸린시간 %0.1f" %sec)
     print("최종 값 : " + chars)
-  
+    #img_result.save("car_image/" + what_now_time() + "걸린시간:" + str(sec) + "번호판" + str(chars) + ".jpg")
+    #cv2.imwrite('"car_image/" + what_now_time() + "걸린시간:" + str(sec) + "번호판" + str(chars) + ".jpg"', img_result)
+    cv2.imwrite('car_image/ + what_now_time() + 걸린시간: + str(sec) + 번호판 + str(chars) + .jpg', img_result)
 
+    return chars
+  
 def draw_bounding_boxes_on_image_array(image,
                                        boxes,
                                        color='red',
@@ -1289,7 +1298,12 @@ def visualize_boxes_and_labels_on_image_array(
   
   for box, color in box_to_color_map.items():
     ymin, xmin, ymax, xmax = box
-    print("box값:" + str(box) + "깔라값 : " + str(color) )
+
+
+    #print("box값:" + str(box) + "깔라값 : " + str(color) )
+
+
+
     #type(box) = tuple 가로세로 정보를 갖고있음
     
     '''

@@ -85,7 +85,7 @@ print("make tensor time : %0.5f" % (time.time() - time1))
     
 #capture = cv2.VideoCapture(0)
 #capture = cv2.VideoCapture('20190916_162900.mp4')
-capture = cv2.VideoCapture("현백(순차주행_병목_HD_8fps).mp4")
+capture = cv2.VideoCapture("현백(순차주행_병목_HD_기울임_8fps).mp4")
 prevtime = 0
 
 #thread_1 = Process(target = find_detection_target, args = (categories_index, classes, scores))#쓰레드 생성
@@ -177,13 +177,13 @@ while True:
         while True:
             key2 = cv2.waitKey(1) or 0xff
             
-            frame = cv2.resize(frame, None, fx = 0.5, fy = 0.5, interpolation=cv2.INTER_LINEAR)
+            #frame = cv2.resize(frame, None, fx = 0.5, fy = 0.5, interpolation=cv2.INTER_LINEAR)
             cv2.imshow('frame', frame)
 
             if key2 == ord('p'):
                 break
 
-    frame = cv2.resize(frame, None, fx = 0.5, fy = 0.5, interpolation=cv2.INTER_LINEAR)
+    #frame = cv2.resize(frame, None, fx = 0.5, fy = 0.5, interpolation=cv2.INTER_LINEAR)
     cv2.imshow('frame',frame)
 
     if key == ord("q"): 
