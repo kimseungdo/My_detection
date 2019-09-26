@@ -95,6 +95,7 @@ class Ui_Dialog(QWidget, object):
         # 로고 이미지 라벨
         self.Logo_lb = QtWidgets.QLabel(Dialog)
         self.Logo_lb.setGeometry(QtCore.QRect(50, 30, 140, 140))
+        self.Logo_lb.setStyleSheet("background-color: rgb()")
         pixmap = QPixmap('../NumPlate/image/logo.png')
         #pixmap = pixmap.scaled(140, 140) # 사이즈 재설정
         self.Logo_lb.setPixmap(pixmap)
