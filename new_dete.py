@@ -15,6 +15,7 @@ from multiprocessing import Process
 
 from object_detection.utils import label_map_util as lmu
 from object_detection.utils import visualization_utils2 as vis_util
+from object_detection.utils.visualization_utils2 import car_info
 '''
 객체인식 원형코드 사용시from object_detection.utils import visualization_utils as vis_util
 객체인식 변형코드 사용시 from object_detection.utils import visualization_utils2 as vis_util <<<----- 번호판 인식모델
@@ -28,7 +29,7 @@ import NumberPlate as NP
 
 #define
 time1 = time.time()
-MIN_ratio = 0.85
+MIN_ratio = 0.65
 
 MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
 #MODEL_NAME = 'faster_rcnn_inception_v2_coco_2018_01_28'
@@ -89,11 +90,13 @@ print("make tensor time : %0.5f" % (time.time() - time1))
     
 #capture = cv2.VideoCapture(0)
 #capture = cv2.VideoCapture('20190916_162900.mp4')
-capture = cv2.VideoCapture("20190916_165145.mp4")
+capture = cv2.VideoCapture("변환/사기각(HD_8fps_110s).mp4")
 prevtime = 0
 
 #thread_1 = Process(target = find_detection_target, args = (categories_index, classes, scores))#쓰레드 생성
 print("road Video time : %0.5f" % (time.time() - time1))
+
+
 '''
 Video_switch = True
 while Video_switch:
@@ -173,6 +176,13 @@ while True:
         min_score_thresh = MIN_ratio,#최소 인식률
         line_thickness = 2) #선두께
 
+    '''
+    try:
+        print(car_info[0] )
+        cv2.imshow('rrr', car_info[1])
+    except:
+        pass
+    '''
     
     if not ret:
         break
@@ -189,12 +199,12 @@ while True:
 
     #frame = cv2.resize(frame, None, fx = 0.5, fy = 0.5, interpolation=cv2.INTER_LINEAR)
     cv2.imshow('frame',frame)
-
+    
+    
     if key == ord("q"): 
         break
 
 cv2.destroyAllWindows()
-
 
 '''
     2 bicycle
@@ -202,92 +212,4 @@ cv2.destroyAllWindows()
     4 motorcycle
     6 bus
     8 truck
-
-    '''
-
 '''
-    if scores[0][3] or scores[0][8] > MIN_ratio:
-        ymin = int((boxes[0][3][0]*height))
-        ymax = int((boxes[0][3][2]*height))
-            
-        xmin = int((boxes[0][3][1]*width))
-        xmax = int((boxes[0][3][3]*width))
-                
-        #if width*0.5 <= xmax-xmin:
-        if width*0.6 <= ymax-ymin:
-                                            #[높이(행), 너비(열)]
-            print("가로 %d" %(ymax-ymin))
-            
-            car_recognition = frame[xmin:xmax, ymin:ymax]
-            car_recognition = cv2.resize(car_recognition, None, fx = 0.5, fy = 0.5, interpolation=cv2.INTER_LINEAR)
-            
-            cv2.imshow('re', car_recognition)
-            cv2.imshow('re2', car_recognition)
-    '''
-
-            
-'''
-    for index, value in enumerate(classes[0]/20):
-
-
-        if scores[0][index] > MIN_ratio :
-            ymin = int((boxes[0][3][0]*height))
-            ymax = int((boxes[0][3][2]*height))
-            
-            xmin = int((boxes[0][3][1]*width))
-            xmax = int((boxes[0][3][3]*width))
-            
-            #print("차의 가로 %d" %(ymax-ymin))
-            car_recognition = frame[ymin:ymax, xmin:xmax]
-            car_recognition = cv2.resize(car_recognition, None, fx = 0.5, fy = 0.5, interpolation=cv2.INTER_LINEAR)
-            cv2.imshow('re', car_recognition)
-            cv2.imshow('re2', car_recognition)
-            
-            if width*0.5 <= ymax-ymin:
-            #if height*0.6 <= ymax-ymin:
-                                            #[높이(행), 너비(열)]
-                #print("가로 %d" %(ymax-ymin))
-                car_recognition = frame[ymin:ymax, xmin:xmax]
-                car_recognition = cv2.resize(car_recognition, None, fx = 0.5, fy = 0.5, interpolation=cv2.INTER_LINEAR)
-                cv2.imshow('re', car_recognition)
-                cv2.imshow('re2', car_recognition)
-            '''
-
-'''
-    
-    #objects = [] #리스트 생성
-    for index, value in enumerate(classes[0]):
-        if scores[0][index] > MIN_ratio:
-
-            
-            visualize_boxes_and_labels_on_image_array box_size_info 이미지 정
-            for box, color in box_to_color_map.items():
-                ymin, xmin, ymax, xmax = box
-            [index][0] [1]   [2]  [3]
-            
-            
-            
-            ymin = int((boxes[0][index][0]*height))
-            xmin = int((boxes[0][index][1]*width))
-            ymax = int((boxes[0][index][2]*height))
-            xmax = int((boxes[0][index][3]*width))
-            #print('가로: %d' &ymax-ymin)
-            
-            Result = frame[ymin:ymax, xmin:xmax]
-            Result = cv2.resize(Result, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_LINEAR)
-            #cv2.imwrite('car.jpg', Result)
-            cv2.imshow('re', Result)
-            cv2.imshow('re2', Result)
-            try:
-                print(NP.check())
-                #NP.number_recognition('car.jpg')
-                
-            except:
-                print("응안돼")
-            #cv2.imshow('re', Result)
-            
-    #print(objects)
-
-'''
-
-

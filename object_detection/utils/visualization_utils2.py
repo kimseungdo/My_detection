@@ -41,6 +41,9 @@ from datetime import date, datetime
 from object_detection.core import standard_fields as fields
 from object_detection.utils import shape_utils
 
+global car_info
+car_info = []
+#end import global varibles
 
 
 _TITLE_LEFT_MARGIN = 10
@@ -220,10 +223,11 @@ def draw_bounding_box_on_image(image,
     (left,  right, top, bottom) = (xmin * im_width, xmax * im_width, ymin * im_height, ymax * im_height)
     
     #car_recognition = image[top:bottom, left:right]
-    
+  '''
   else:
     area = (left, right, top, bottom) = (xmin, xmax, ymin, ymax)
     #car_recognition = image[top:bottom, left:right]
+  '''
     
   '''원형코드
   #if im_width*0.6 <= left
@@ -266,7 +270,7 @@ def draw_bounding_box_on_image(image,
       text_bottom -= text_height - 2 * margin
   '''
   
-  if im_width*0.65 <= right-left and im_width*0.8 >= right-left:
+  if im_height*0.53 <= bottom-top and im_height*0.67 >= bottom-top:
     draw.line([(left, top), (left, bottom), (right, bottom), (right, top), (left, top)], width=thickness, fill=color)
     
     #cr_image = image.crop((left, top, right, bottom))
@@ -285,45 +289,70 @@ def draw_bounding_box_on_image(image,
     # Each display_str has a top and bottom margin of 0.05x.
     total_display_str_height = (1 + 2 * 0.05) * sum(display_str_heights)
 
+    
     if top > total_display_str_height:
       text_bottom = top
+    
     else:
       text_bottom = bottom + total_display_str_height
-      
+    
     # Reverse list and print from bottom to top.
     for display_str in display_str_list[::-1]: #이미지 리스트 반복
       # print(type(display_str) ) type = str
       #print(display_str + "   가로폭 : " + str(right - left) )
-      if im_width*0.65 <= right-left and im_width*0.8 >= right-left:
+      #if im_heigh*0.65 <= bottom-top and im_width*0.72 >= bottom-top:
         #print(display_str + "   가로폭 : " + str(right - left) )
-
+      print("%s - 가로폭: %0.5f 세로폭: %0.5f" %(display_str, (right-left), (bottom-top)) )
         
-        cr_image = image.crop((left, top, right, bottom) )
+      cr_image = image.crop((left+50, top, right-50, bottom) )
         
-        cr_image.save("car_image/" + what_now_time() + str(display_str[:3]) + str(int(right - left)) + ".jpg")
+      cr_image.save("car_image/" + what_now_time() + str(display_str[:3]) + str(int(bottom-top)) + ".jpg")
 
 
-        cr_image = image.crop((left*2+160, top+200, right, bottom) )
-
-        #cv2.imshow('cut', ocv)
-        #return cr_image
-
-        plate = number_recognition(cr_image)       #return 번호판이름 
-        cr_image.save("car_image/" + "pLate-" + str(plate) + ".jpg")
-        text_width, text_height = font.getsize(display_str)
+      cr_image = image.crop((left+120, top+200, right-100, bottom) )
+      #cv2.imshow('cut', ocv)
+      #return cr_image
+      
+      #global plate_chars
+      #global plate_image
+      
+      try:
+        plate_chars, plate_image = number_recognition(cr_image)       #return 번호판이름
+        car_info.append(plate_chars)
+        car_info.append(plate_image)
+        '''
+        if car_info[0] == None:
+          car_info.append(plate_chars)
+          car_info.append(plate_image)
+        else:
+          car_info[0] = plate_chars
+          car_info[1] = plate_image
+        '''
+        if car_info[0] != None:
+          car_info[0] = plate_chars
+          car_info[1] = plate_image
+          
+        #print("저장한새끼 : " + str(car_info) )
+        cr_image.save("car_image/" + "pLate-" + str(plate_chars) + ".jpg")
+      except:
+        print("응지나가")
         
-        margin = np.ceil(0.05 * text_height)
-        draw.rectangle( [(left, text_bottom - text_height - 2 * margin), (left + text_width, text_bottom)], fill=color)
+      text_width, text_height = font.getsize(display_str)
+      
+      margin = np.ceil(0.05 * text_height)
+      draw.rectangle( [(left, text_bottom - text_height - 2 * margin), (left + text_width, text_bottom)], fill=color)
 
-        draw.text( (left + margin, text_bottom - text_height - margin), display_str, fill='black', font=font)
-        text_bottom -= text_height - 2 * margin
+      draw.text( (left + margin, text_bottom - text_height - margin), display_str, fill='black', font=font)
+      text_bottom -= text_height - 2 * margin
 #def draw_bounding_crop_image(image):
 
 def what_now_time():
   day = datetime.now()
   return str('{0.year:04}{0.month:02}{0.day:02}_{0.hour:02}h{0.minute:02}m{0.second:02}s'.format(day) )
 
+    
 def number_recognition(img_ori):
+    
     #print(type(img_ori) )
     #img_ori = cv2.imread(cut_image) #이미지 불러오기
     #print("불러오기는 했음")
@@ -343,7 +372,7 @@ def number_recognition(img_ori):
     # gray = hsv[:,:,2]
     gray = cv2.cvtColor(img_ori, cv2.COLOR_BGR2GRAY) #이미지 흑백변환
 
-    #cv2.imwrite('01.jpg', gray) #흑백 이미지 저장
+    cv2.imwrite('01.jpg', gray) #흑백 이미지 저장
 
     # --Maximize Contrast(Optional)--
 
@@ -355,7 +384,7 @@ def number_recognition(img_ori):
     imgGrayscalePlusTopHat = cv2.add(gray, imgTopHat)
     gray = cv2.subtract(imgGrayscalePlusTopHat, imgBlackHat)
 
-    #cv2.imwrite('02.jpg', gray) #Maximize Contrast(Optional)
+    cv2.imwrite('02.jpg', gray) #Maximize Contrast(Optional)
 
     # --Adaptive Thresholding--
 
@@ -370,7 +399,7 @@ def number_recognition(img_ori):
         C=9
     )
 
-    #cv2.imwrite('03.jpg', img_thresh) #쓰레시홀딩 적용 이미지 저장
+    cv2.imwrite('03.jpg', img_thresh) #쓰레시홀딩 적용 이미지 저장
     
     # --Find Contours--
 
@@ -436,7 +465,7 @@ def number_recognition(img_ori):
         #     cv2.drawContours(temp_result, d['contour'], -1, (255, 255, 255))
         cv2.rectangle(temp_result, pt1=(d['x'], d['y']), pt2=(d['x'] + d['w'], d['y'] + d['h']), color=(255, 255, 255), thickness=2)
 
-    #cv2.imwrite('06.jpg', temp_result) #contours영역 시각화
+    cv2.imwrite('06.jpg', temp_result) #contours영역 시각화
 
     # --Select Candidates by Arrangement of Contours--
 
@@ -529,10 +558,10 @@ def number_recognition(img_ori):
 
     while charsok == 0:
         print("와일문이 돌았다")
-        PLATE_WIDTH_PADDING = 1.265 + add_w_padding  # 1.3 #1.265
+        PLATE_WIDTH_PADDING = 1.235 + add_w_padding  # 1.3 #1.265
         #print("패딩값")
         #print(PLATE_WIDTH_PADDING)
-        PLATE_HEIGHT_PADDING = 1.53 + add_h_padding  # 1.5 #1.55
+        PLATE_HEIGHT_PADDING = 1.48 + add_h_padding  # 1.5 #1.55
         MIN_PLATE_RATIO = 3 #3
         MAX_PLATE_RATIO = 10 #10
 
@@ -615,6 +644,7 @@ def number_recognition(img_ori):
                     if y + h > plate_max_y:
                         plate_max_y = y + h
 
+            
             img_result = plate_img[plate_min_y:plate_max_y, plate_min_x:plate_max_x]
 
             img_result = cv2.GaussianBlur(img_result, ksize=(3, 3), sigmaX=0) #최종값 굵기조정
@@ -623,11 +653,15 @@ def number_recognition(img_ori):
                                             value=(0, 0, 0))
 
             cv2.imwrite('00.jpg', img_result)
+            
+            
             chars = pytesseract.image_to_string(Image.open('00.jpg'), config='--psm 7 --oem 0', lang='kor')
+
+            
             nowtime = time.time()
             sec = nowtime - prevtime
             #print("걸린시간 %0.5f" % sec)
-            #print("이미지 불러 온 후 글자 : " + chars)
+            print("이미지 불러 온 후 글자 : " + chars)
 
             result_chars = ''
             has_digit = False
@@ -708,7 +742,11 @@ def number_recognition(img_ori):
     #cv2.imwrite('"car_image/" + what_now_time() + "걸린시간:" + str(sec) + "번호판" + str(chars) + ".jpg"', img_result)
     cv2.imwrite('car_image/ + what_now_time() + 걸린시간: + str(sec) + 번호판 + str(chars) + .jpg', img_result)
 
-    return chars
+    #global chars
+    #global img_result
+
+    
+    return chars, img_result
   
 def draw_bounding_boxes_on_image_array(image,
                                        boxes,

@@ -3,3 +3,10 @@ could not create cudnn handle: CUDNN_STATUS_ALLOC_FAILED
 
 2019-09-17 14:15:46.345004: F T:\src\github\tensorflow\tensorflow\core\kernels\conv_ops.cc:713] 
 Check failed: stream->parent()->GetConvolveAlgorithms( conv_parameters.ShouldIncludeWinogradNonfusedAlgo<T>(), &algorithms)
+
+
+[h264 @ 0000016eaba4f280] Invalid NAL unit size (655115040 > 603647).
+[h264 @ 0000016eaba4f280] Error splitting the input into NAL units.
+Assertion fctx->async_lock failed at libavcodec/pthread_frame.c:155
+
+Assertion avci->compat_decode_consumed == 0 failed at libavcodec/decode.c:777

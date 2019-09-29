@@ -210,7 +210,7 @@ def number_recognition(cut_image):
     plate_chars = []  # 번호판 리스트 변수
 
     while charsok == 0:  # 번호판 글자로 예상되는 값이 나올 때까지 반복
-        PLATE_WIDTH_PADDING = 1.267 + add_w_padding  # 가로 패딩 값 예제 디폴트는 1.3
+        PLATE_WIDTH_PADDING = 1.2 + add_w_padding  # 가로 패딩 값 예제 디폴트는 1.3
         PLATE_HEIGHT_PADDING = 1.51 + add_h_padding  # 세로 패딩 값 예제 디폴트는 1.5
         MIN_PLATE_RATIO = 3  # 3 최소 번호판 비율
         MAX_PLATE_RATIO = 10  # 10 최대 번호판 비율

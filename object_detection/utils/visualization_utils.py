@@ -253,15 +253,23 @@ def draw_bounding_box_on_image(image,
   # Reverse list and print from bottom to top.
   for display_str in display_str_list[::-1]: #이미지 리스트 반복
     # print(type(display_str) ) type = str
-    #print(display_str + "   가로폭 : " + str(right - left) )
+    #print(display_str + "   가로폭 : " + str(right - left) + "    세로폭 : " + str(abs(top-bottom)) )
+    print("%s - 가로폭: %0.5f 세로폭: %0.5f" %(display_str, (right-left), (bottom-top)) )
     #if im_width*0.6 <= right-left:
+    cr_image = image.crop((left, top, right, bottom) )
+    cr_image.save("car_image/" + what_now_time() + str(display_str[:3]) + str(int(bottom-top)) + ".jpg")
+    
     text_width, text_height = font.getsize(display_str)
-      
+
     margin = np.ceil(0.05 * text_height)
     draw.rectangle( [(left, text_bottom - text_height - 2 * margin), (left + text_width, text_bottom)], fill=color)
 
     draw.text( (left + margin, text_bottom - text_height - margin), display_str, fill='black', font=font)
     text_bottom -= text_height - 2 * margin
+    
+def what_now_time():
+  day = datetime.now()
+  return str('{0.year:04}{0.month:02}{0.day:02}_{0.hour:02}h{0.minute:02}m{0.second:02}s'.format(day) )
 
 def draw_bounding_boxes_on_image_array(image,
                                        boxes,
