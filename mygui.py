@@ -244,7 +244,7 @@ class Ui_Dialog(QWidget, object):
         # self.Plate_img_lb.setPixmap(pixmap)
         # 번호판 라벨
         self.Num_Plate_lb = QtWidgets.QLabel(self.Rema_fr)
-        self.Num_Plate_lb.setGeometry(QtCore.QRect(625, 125, 310, 60))  # 785 290 31 60
+        self.Num_Plate_lb.setGeometry(QtCore.QRect(135, 125, 310, 60))  # 785 290 31 60
         self.Num_Plate_lb.setStyleSheet('background-color: rgb(); font-weight : bold; font-size: 36pt; font-family: 맑은 고딕;')
         self.Num_Plate_lb.setAlignment(QtCore.Qt.AlignCenter)
         self.Num_Plate_lb.setText('')
@@ -291,6 +291,7 @@ class Thread(QThread):
         prevtime = 0
 
         while True:
+            k = cv2.waitKey(20)
             ret, frame = capture.read()
             global re, fr
             re = ret
