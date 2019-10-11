@@ -51,7 +51,6 @@ class Ui_Dialog(QWidget, object):
         pixmap = QPixmap('image/theme.jpg')
         pixmap = pixmap.scaled(1280, 720)  # 사이즈 재설정
         self.Main_lb.setPixmap(pixmap)
-
         # 로고 이미지 라벨
         self.Logo_lb = QtWidgets.QLabel(Dialog)
         self.Logo_lb.setGeometry(QtCore.QRect(50, 30, 350, 126))
@@ -59,7 +58,6 @@ class Ui_Dialog(QWidget, object):
         pixmap = QPixmap('image/logo.png')
         # pixmap = pixmap.scaled(350, 126)  # 사이즈 재설정
         self.Logo_lb.setPixmap(pixmap)
-
         # 제작자 라벨
         self.Maker_lb = QtWidgets.QLabel(Dialog)
         self.Maker_lb.setGeometry(QtCore.QRect(990, 694, 274, 16))
@@ -147,7 +145,7 @@ class Ui_Dialog(QWidget, object):
         self.Oil_type_lb = QtWidgets.QLabel(self.Ex_fr)
         self.Oil_type_lb.setGeometry(QtCore.QRect(97, 240, 264, 60))
         self.Oil_type_lb.setStyleSheet(
-            'color : rgb(000, 000, 000); background-color: rgb(); font-weight : bold; font-size: 30pt; font-family: 맑은 고딕;')
+            'color : rgb(000, 000, 000); background-color: rgb(204,204,204); font-weight : bold; font-size: 30pt; font-family: 맑은 고딕;')
         self.Oil_type_lb.setAlignment(QtCore.Qt.AlignCenter)
         self.Oil_type_lb.setText('휘발유(가솔린)')
         # (입니다)Text 라벨
@@ -182,7 +180,7 @@ class Ui_Dialog(QWidget, object):
         self.CCancel_button.setStyleSheet('border-radius: 5px; background-color: rgb(051, 051, 051); color : rgb(255, 255, 255); font-size: 24pt; font-family: 맑은 고딕;')
         self.CCancel_button.setText('취 소')
         self.CCancel_button.clicked.connect(self.Cancel_button_clicked)  # 취소 버튼이벤트
-        self.Ex_fr.setVisible(False)
+        #self.Ex_fr.setVisible(False)
         # 유종 정보 등록 프레임 컽
 
         # 유종 정보 미등록 프레임
@@ -525,10 +523,14 @@ class Thread2(QThread):
 
                 if rows == ('G',):
                     ui.Oil_type_lb.setText('휘발유(가솔린)')
+                    ui.Oil_type_lb.setGeometry(QtCore.QRect(97, 240, 264, 60))
+                    ui.Ex_last_lb.setGeometry(QtCore.QRect(365, 240, 130, 60))
                     self.Set_Img_Numlb()
                     self.Ex_Show_Frame()
                 elif rows == ('D',):
                     ui.Oil_type_lb.setText('경유(디젤)')
+                    ui.Oil_type_lb.setGeometry(QtCore.QRect(131, 240, 184, 60))
+                    ui.Ex_last_lb.setGeometry(QtCore.QRect(319, 240, 130, 60))
                     self.Set_Img_Numlb()
                     self.Ex_Show_Frame()
                 else:
