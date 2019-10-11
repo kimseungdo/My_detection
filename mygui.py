@@ -329,7 +329,7 @@ class Ui_Dialog(QWidget, object):
         self.Intro_fr.setVisible(False) # 인트로 프레임 Visible = False
         self.Main_fr.setVisible(True)   # 메인 프레임 Visible = True
         self.frame.setVisible(True)
-        global wtf
+        global wtf  # 반복문을 제어할 변수
         wtf = 1
         th1 = Thread(self)
         th1.changePixmap.connect(self.setImage)
@@ -345,8 +345,11 @@ class Ui_Dialog(QWidget, object):
         self.Choice_Oil_Type_lb.setVisible(bool)
         self.Regi_DB_button.setVisible(bool)
         self.ReCancel_button.setVisible(bool)
+        self.Register_fr.setVisible(bool)
 
     def Register_button_clicked(self):  # 등록 버튼 이벤트(화면 전환)
+        global wtf
+        wtf = 0
         self.Regi_fr.setVisible(False)
         self.Saving_lb.setVisible(False)
         self.Regi_SetUi(True)
@@ -355,6 +358,7 @@ class Ui_Dialog(QWidget, object):
         self.Regi_SetUi(False)
         self.Saving_lb.setVisible(True)
         k = cv2.waitKey(2000)
+        self.Main_fr.setVisible(False)
         self.Register_fr.setVisible(False)
         self.End_fr.setVisible(True)
         k = cv2.waitKey(4000)  # 4초 대기
@@ -367,14 +371,14 @@ class Ui_Dialog(QWidget, object):
         oilType = ''    # 유종 변수
         if self.Choice_Oil_Type_lb.text() == '유종 : 휘발유(가솔린)':   # 휘발유 선택시 이벤트 처리
             oilType = 'G'
-            regi_sql = 'INSERT INTO Register VALUES (' + '0' + ', ' + "%04d%02d%02d%02d%02d%02d" % (now.year, now.month, now.day, now.hour, now.minute, now.second) + ", ""'" + self.Num_Plate_lb.text() + "', ""'" + oilType + "'"", " + 'null' + ", " + 'null' ')'
+            regi_sql = 'INSERT INTO Register VALUES (' + '0' + ', ' + "%04d%02d%02d%02d%02d%02d" % (now.year, now.month, now.day, now.hour, now.minute, now.second) + ", ""'" + self.Num_Plate_lb.text() + "', ""'" + oilType + "'"", '" + 'path' + "'"')'
             curs = conn.cursor()
             curs.execute(regi_sql)
             conn.commit()
             self.Regi_End_SetUi()
         elif self.Choice_Oil_Type_lb.text() == '유종 : 경유(디젤)':   # 경유 선택시 이벤트 처리
             oilType = 'D'
-            regi_sql = 'INSERT INTO Register VALUES (' + '0' + ', ' + "%04d%02d%02d%02d%02d%02d" % (now.year, now.month, now.day, now.hour, now.minute, now.second) + ", ""'" + self.Num_Plate_lb.text() + "', ""'" + oilType + "'"", " + 'null' + ", " + 'null' ')'
+            regi_sql = 'INSERT INTO Register VALUES (' + '0' + ', ' + "%04d%02d%02d%02d%02d%02d" % (now.year, now.month, now.day, now.hour, now.minute, now.second) + ", ""'" + self.Num_Plate_lb.text() + "', ""'" + oilType + "'"", '" + 'path' + "'"')'
             curs = conn.cursor()
             curs.execute(regi_sql)
             conn.commit()
@@ -406,7 +410,7 @@ class Ui_Dialog(QWidget, object):
             oiltype = 'G'
         elif self.Oil_type_lb.text() == '경유(디젤)':
             oiltype = 'D'
-        refuel_sql = 'INSERT INTO Register VALUES (' + '0' + ', ' + "%04d%02d%02d%02d%02d%02d" % (now.year, now.month, now.day, now.hour, now.minute,now.second) + ", ""'" + self.Num_Plate_lb.text() + "', ""'" + oiltype + "'"", '" + 'path' + "'"')' # path는 이미지 경로 추가 요함
+        refuel_sql = 'INSERT INTO refuelLog VALUES (' + '0' + ', ' + "%04d%02d%02d%02d%02d%02d" % (now.year, now.month, now.day, now.hour, now.minute, now.second) + ", ""'" + self.Num_Plate_lb.text() + "', ""'" + oiltype + "'"", " + 'null' + ", " + 'null' ')' # path는 이미지 경로 추가 요함
         curs = conn.cursor()
         curs.execute(refuel_sql)
         conn.commit()
@@ -563,6 +567,9 @@ class Thread2(QThread):
         ui.Regi_fr.setVisible(False)
         ui.Rema_fr.setVisible(True)
         ui.Ex_fr.setVisible(True)
+        if wtf == 0:
+            ui.Rema_fr.setVisible(False)
+            ui.Ex_fr.setVisible(False)
 
 
 if __name__ == "__main__":
