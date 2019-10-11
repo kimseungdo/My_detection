@@ -514,7 +514,6 @@ class Thread2(QThread):
                 use_normalized_coordinates=True,
                 min_score_thresh=MIN_ratio,  # 최소 인식률
                 line_thickness=2)  # 선두께
-            print('유틸 돔')
 
             try:
                 curs = conn.cursor()
