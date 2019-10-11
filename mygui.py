@@ -465,8 +465,8 @@ class Thread2(QThread):
         time1 = time.time()
         MIN_ratio = 0.60
 
-        # MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
-        MODEL_NAME = 'faster_rcnn_inception_v2_coco_2018_01_28'
+        MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
+        #MODEL_NAME = 'faster_rcnn_inception_v2_coco_2018_01_28'
         GRAPH_FILE_NAME = 'frozen_inference_graph.pb'
         LABEL_FILE = 'data/mscoco_label_map.pbtxt'
         NUM_CLASSES = 90

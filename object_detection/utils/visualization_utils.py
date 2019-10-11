@@ -208,6 +208,7 @@ def draw_bounding_box_on_image(image,
     use_normalized_coordinates: If True (default), treat coordinates
       ymin, xmin, ymax, xmax as relative to the image.  Otherwise treat
       coordinates as absolute.
+      참값이면 좌표처리 이미지에 값 부여 다른경우면 절대값 부여
   """
   
   draw = ImageDraw.Draw(image)
@@ -218,15 +219,15 @@ def draw_bounding_box_on_image(image,
   
   if use_normalized_coordinates:
     (left,  right, top, bottom) = (xmin * im_width, xmax * im_width, ymin * im_height, ymax * im_height)
-    
-    #car_recognition = image[top:bottom, left:right]
+    #원형 (left,  right, top, bottom) = (xmin * im_width, xmax * im_width, ymin * im_height, ymax * im_height)
     
   else:
     area = (left, right, top, bottom) = (xmin, xmax, ymin, ymax)
-    #car_recognition = image[top:bottom, left:right]
+    #원형 area = (left, right, top, bottom) = (xmin, xmax, ymin, ymax)
     
-
-  #if im_width*0.6 <= left
+  
+  #if im_height*0.53 <= bottom-top and im_height*0.67 >= bottom-top:
+  #  if im_width*0.5 <= right-left and im_width*0.67 >= right-left
   draw.line([(left, top), (left, bottom), (right, bottom), (right, top), (left, top)], width=thickness, fill=color)
   
   #cr_image = image.crop((left, top, right, bottom))
@@ -249,7 +250,9 @@ def draw_bounding_box_on_image(image,
     text_bottom = top
   else:
     text_bottom = bottom + total_display_str_height
-    
+
+
+  
   # Reverse list and print from bottom to top.
   for display_str in display_str_list[::-1]: #이미지 리스트 반복
     # print(type(display_str) ) type = str
@@ -257,7 +260,7 @@ def draw_bounding_box_on_image(image,
     print("%s - 가로폭: %0.5f 세로폭: %0.5f" %(display_str, (right-left), (bottom-top)) )
     #if im_width*0.6 <= right-left:
     cr_image = image.crop((left, top, right, bottom) )
-    cr_image.save("car_image/" + what_now_time() + str(display_str[:3]) + str(int(bottom-top)) + ".jpg")
+    cr_image.save("car_image/" + str(int(bottom-top)) + str(display_str[:2]) + ".jpg")
     
     text_width, text_height = font.getsize(display_str)
 
@@ -266,7 +269,49 @@ def draw_bounding_box_on_image(image,
 
     draw.text( (left + margin, text_bottom - text_height - margin), display_str, fill='black', font=font)
     text_bottom -= text_height - 2 * margin
-    
+  '''
+
+  if im_height*0.47 <= bottom-top and im_height*0.71 >= bottom-top:
+    if im_width*0.31 <= right-left and im_width*0.57 >= right-left:
+      draw.line([(left, top), (left, bottom), (right, bottom), (right, top), (left, top)], width=thickness, fill=color)
+      
+      try:
+        font = ImageFont.truetype('arial.ttf', 24)
+      except IOError:
+        font = ImageFont.load_default() 
+
+      # If the total height of the display strings added to the top of the bounding
+      # box exceeds the top of the image, stack the strings below the bounding box
+      # instead of above.
+      display_str_heights = [font.getsize(ds)[1] for ds in display_str_list]
+
+      # Each display_str has a top and bottom margin of 0.05x.
+      total_display_str_height = (1 + 2 * 0.05) * sum(display_str_heights)
+
+      if top > total_display_str_height:
+        text_bottom = top
+      else:
+        text_bottom = bottom + total_display_str_height
+
+
+      
+      # Reverse list and print from bottom to top.
+      for display_str in display_str_list[::-1]: #이미지 리스트 반복
+        # print(type(display_str) ) type = str
+        #print(display_str + "   가로폭 : " + str(right - left) + "    세로폭 : " + str(abs(top-bottom)) )
+        print("%s - 가로폭: %0.5f 세로폭: %0.5f" %(display_str, (right-left), (bottom-top)) )
+        #if im_width*0.6 <= right-left:
+        cr_image = image.crop((left, top, right, bottom) )
+        cr_image.save("car_image/" + str(int(bottom-top)) + str(display_str[:2]) + ".jpg")
+        
+        text_width, text_height = font.getsize(display_str)
+
+        margin = np.ceil(0.05 * text_height)
+        draw.rectangle( [(left, text_bottom - text_height - 2 * margin), (left + text_width, text_bottom)], fill=color)
+
+        draw.text( (left + margin, text_bottom - text_height - margin), display_str, fill='black', font=font)
+        text_bottom -= text_height - 2 * margin
+  '''
 def what_now_time():
   day = datetime.now()
   return str('{0.year:04}{0.month:02}{0.day:02}_{0.hour:02}h{0.minute:02}m{0.second:02}s'.format(day) )
