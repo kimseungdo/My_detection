@@ -1,0 +1,25 @@
+CREATE DATABASE OilShock
+USE OilShock
+
+CREATE TABLE Register(
+regNum int not null auto_increment,
+regDate datetime not null,
+carNum varchar(8) not null,
+oilType varchar(1) not null,
+licPic varchar(100),
+primary key(regNum)
+);
+CREATE INDEX idx_carNum On Register(carNum);
+CREATE INDEX idx_oilType ON Register(oilType);
+
+CREATE TABLE refuelLog(
+refuelNum int not null auto_increment,
+refuelDate datetime not null,
+carNum varchar(8) not null,
+oilType varchar(1) not null,
+amount double,
+price int,
+primary key (refuelNum),
+foreign key(carNum) REFERENCES Register (carNum),
+foreign key(oilType) REFERENCES Register (oilType)
+);
