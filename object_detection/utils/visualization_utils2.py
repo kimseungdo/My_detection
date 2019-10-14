@@ -363,7 +363,19 @@ def number_recognition(cut_image):
     # --Read Input Image-- (이미지 불러오기)
     #src = cv2.imread(cut_image) #이미지 불러오기
 
+    CAR_ELEMENT_K = (3, 3) #
+    CAR_BLUR_K = (5, 5) #블러 커널 사이즈
+    CAR_AT_BS = 17 #문턱값 블록사이즈
+    CAR_AT_C = 9 #문턱값 보정 상수
+    
+    PLATE_BLUR_K = (3, 3) #블러 커널 사이즈
+    PLATE_TH_V = 0.0 #윤곽선 값
+    PLATE_TH_MAX_V = 255.0 #최대값
+  
+    
+    SAVE_SWITCH = 0 # 0이면 저장 아니면 패스
 
+    #END DEFINE
     src = cv2.cvtColor(np.array(cut_image), cv2.COLOR_RGB2BGR)
     
     print("불러오기는 했음")
@@ -388,29 +400,43 @@ def number_recognition(cut_image):
 
     gray = cv2.cvtColor(src, cv2.COLOR_BGR2GRAY)  # 이미지 흑백변환
 
+    if SAVE_SWITCH == 0:
+      cv2.imwrite('01.jpg', gray)
+    else:
+      pass
+    
     # --Maximize Contrast(Optional)-- (흑백대비 최대화)
 
-    structuringElement = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+    structuringElement = cv2.getStructuringElement(cv2.MORPH_RECT, CAR_ELEMENT_K)
 
     imgTopHat = cv2.morphologyEx(gray, cv2.MORPH_TOPHAT, structuringElement)
     imgBlackHat = cv2.morphologyEx(gray, cv2.MORPH_BLACKHAT, structuringElement)
 
     imgGrayscalePlusTopHat = cv2.add(gray, imgTopHat)
     gray = cv2.subtract(imgGrayscalePlusTopHat, imgBlackHat)
-
+    
+    if SAVE_SWITCH == 0:
+      cv2.imwrite('02.jpg', gray)
+    else:
+      pass
     # --Adaptive Thresholding-- (가우시안블러(이미지 노이즈 제거) 및 쓰레시 홀딩)
 
-    img_blurred = cv2.GaussianBlur(gray, ksize=(5, 5), sigmaX=0)  # GaussianBlur 적용
-
+    img_blurred = cv2.GaussianBlur(gray, ksize=CAR_BLUR_K, sigmaX=0)  # GaussianBlur 적용
+    
     img_thresh = cv2.adaptiveThreshold(  # adaptiveThreshold 적용
         img_blurred,
-        maxValue=255.0,
-        adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-        thresholdType=cv2.THRESH_BINARY_INV,
-        blockSize=19,
-        C=9
+        maxValue = 255.0,
+        adaptiveMethod = cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        thresholdType = cv2.THRESH_BINARY_INV,
+        blockSize = CAR_AT_BS,
+        C = CAR_AT_C
+        
     )
-
+    if SAVE_SWITCH == 0:
+      cv2.imwrite('03.jpg', img_thresh)
+    else:
+      pass
+    
     # --Find Contours-- (윤곽선 찾기)
 
     contours, hierarchy = cv2.findContours(  # opencv의 findContours를 이용하여 contours에 저장
@@ -427,7 +453,11 @@ def number_recognition(cut_image):
 
     temp_result = np.zeros((height, width, channel),
                            dtype=np.uint8)  # drawContours를 이용해 그린 윤곽선에 다시 numpy.zeros를 이용해 다시 윤곽선 범위 저장 (안하면 윤곽선 좀 남아있음)
-
+    if SAVE_SWITCH == 0:
+      cv2.imwrite('04.jpg', temp_result)
+    else:
+      pass
+    
     contours_dict = []  # contour 정보를 모두 저장받을 리스트 변수
 
     for contour in contours:
@@ -445,7 +475,12 @@ def number_recognition(cut_image):
             'cx': x + (w / 2),
             'cy': y + (h / 2)
         })
-        
+
+    if SAVE_SWITCH == 0:
+      cv2.imwrite('05.jpg', temp_result)
+    else:
+      pass
+    
     # --Select Candidates by Char Size-- (글자 같은 영역 찾기)
 
     MIN_AREA = 80  # 윤곽선의 가운데 렉트 최소 넓이 80
@@ -473,7 +508,12 @@ def number_recognition(cut_image):
         #     cv2.drawContours(temp_result, d['contour'], -1, (255, 255, 255))
         cv2.rectangle(temp_result, pt1=(d['x'], d['y']), pt2=(d['x'] + d['w'], d['y'] + d['h']), color=(255, 255, 255),
                       thickness=2)  # 글자로 예상되는 영역만 rectangle 그리기
-
+        
+    if SAVE_SWITCH == 0:
+      cv2.imwrite('06.jpg', temp_result)
+    else:
+      pass
+    
     # --Select Candidates by Arrangement of Contours-- (글자의 연속성(번호판으로 예상되는 영역) 찾기)
 
     MAX_DIAG_MULTIPLYER = 4.7  # 5 contour와 contour의 사이의 길이 (값계속 바꿔가면서 테스트 해야함)
@@ -539,7 +579,7 @@ def number_recognition(cut_image):
         return matched_result_idx
 
     result_idx = find_chars(possible_contours)
-
+    
     matched_result = []  # 예상되는 번호판 contour정보를 담을 리스트 변수
     for idx_list in result_idx:
         matched_result.append(np.take(possible_contours, idx_list))
@@ -554,8 +594,17 @@ def number_recognition(cut_image):
                           color=(255, 255, 255),
                           thickness=2)
 
+    if SAVE_SWITCH == 0:
+      cv2.imwrite('07.jpg', temp_result) #차에서 번호판 잡았
+    else:
+      pass
+    
     # --Rotate Plate Images-- (이미지 회전)
 
+
+    '''
+    번호판 조짐
+    '''
     plate_imgs = []  # 번호판 이미지를 담을 리스트 변수
     plate_infos = []  # 번호판 정보를 담을 리스트 변수
 
@@ -614,7 +663,12 @@ def number_recognition(cut_image):
                 'w': int(plate_width),
                 'h': int(plate_height)
             })
-
+        #end for matched_chars
+        if SAVE_SWITCH == 0:
+          cv2.imwrite('08.jpg', img_cropped)
+        else:
+          pass
+        
         # --Another Thresholding to Find Chars-- (찾은문자에서 다시 쓰레시홀딩)
 
         for i, plate_img in enumerate(plate_imgs):
@@ -651,8 +705,8 @@ def number_recognition(cut_image):
 
             img_result = plate_img[plate_min_y:plate_max_y, plate_min_x:plate_max_x]  # 이미지를 번호판 부분만 잘라내기
 
-            img_result = cv2.GaussianBlur(img_result, ksize=(3, 3), sigmaX=0)  # GaussianBlur(노이즈 제거)
-            _, img_result = cv2.threshold(img_result, thresh=0.0, maxval=255.0,
+            img_result = cv2.GaussianBlur(img_result, ksize=PLATE_BLUR_K, sigmaX=0)  # GaussianBlur(노이즈 제거)
+            _, img_result = cv2.threshold(img_result, thresh=PLATE_TH_V, maxval=PLATE_TH_MAX_V,
                                           type=cv2.THRESH_BINARY | cv2.THRESH_OTSU)  # 쓰레시홀딩 한번 더
             img_result = cv2.copyMakeBorder(img_result, top=10, bottom=10, left=10, right=10,
                                             borderType=cv2.BORDER_CONSTANT,  # 이미지에 패딩(여백)을 줌
@@ -706,7 +760,12 @@ def number_recognition(cut_image):
             for numch, in result_chars:  # 문자열 검사를 통해 숫자가 3개 이상이라면 번호판일 확률이 높으므로 이 plate_imgs는 번호판일 것임 그러므로 패딩값을 조절하면 되기에 이미지는 고정할 것
                 if numch.isdigit() == True:
                     numcheck += 1
-
+            #end for result_char
+              
+        if SAVE_SWITCH == 0:  
+          cv2.imwrite('09.jpg', img_result)
+        else:
+          pass
         # --Result-- (결과값)
 
         info = plate_infos[longest_idx]  # 번호판 좌표 정보 담기
