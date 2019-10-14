@@ -601,6 +601,6 @@ if __name__ == "__main__":
     Dialog.show()
 
     # capture = cv2.VideoCapture(0)
-    capture = cv2.VideoCapture("asdf.mp4")  # 165145 162900
+    capture = cv2.VideoCapture("변환/asdf.mp4")  # 165145 162900
 
     sys.exit(app.exec_())
