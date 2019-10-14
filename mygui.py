@@ -323,10 +323,10 @@ class Ui_Dialog(QWidget, object):
 
         # 로고 이미지 라벨
         self.Logo_lb = QtWidgets.QLabel(Dialog)
-        self.Logo_lb.setGeometry(QtCore.QRect(50, 30, 245, 88))
+        self.Logo_lb.setGeometry(QtCore.QRect(38, 40, 279, 101))
         self.Logo_lb.setStyleSheet("background-color: rgb()")
         pixmap = QPixmap('image/logo.png')
-        pixmap = pixmap.scaled(245, 88)  # 사이즈 재설정
+        #pixmap = pixmap.scaled(279, 101)  # 사이즈 재설정
         self.Logo_lb.setPixmap(pixmap)
         # 제작자 라벨
         self.Maker_lb = QtWidgets.QLabel(Dialog)
