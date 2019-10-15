@@ -359,7 +359,6 @@ class Ui_Dialog(QWidget, object):
         self.Choice_Oil_Type_lb.setVisible(bool)
         self.Regi_DB_button.setVisible(bool)
         self.ReCancel_button.setVisible(bool)
-        self.Register_fr.setVisible(bool)
 
     def Register_button_clicked(self):  # 등록 버튼 이벤트(화면 전환)
         global wtf
@@ -368,6 +367,7 @@ class Ui_Dialog(QWidget, object):
         self.Saving_lb.setVisible(False)
         self.Saving_lb1.setVisible(False)
         self.Regi_SetUi(True)
+        self.Register_fr.setVisible(True)
 
     def Regi_End_SetUi(self):
         self.Regi_SetUi(False)
