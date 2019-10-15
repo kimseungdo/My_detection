@@ -102,7 +102,7 @@ class Ui_Dialog(QWidget, object):
         # 영상이 나올 라벨
         self.Video_lb = QtWidgets.QLabel(self.Main_fr)
         self.Video_lb.setGeometry(QtCore.QRect(50, 190, 580, 480))
-        self.Video_lb.setStyleSheet('border : 4px solid black; border-radius: 10px; background-color: rgb(204, 204, 204, 100); font-size: 30pt; font-family: 맑은 고딕;')  # 폰트&사이즈
+        self.Video_lb.setStyleSheet('border : 4px solid black; border-radius: 10px; background-color: rgb(0, 0, 0); font-size: 30pt; font-family: 맑은 고딕;')  # 폰트&사이즈
         self.Video_lb.setText('여기에 카메라 \n영상이 재생됩니다.')
         self.Video_lb.setAlignment(QtCore.Qt.AlignCenter)  # 중앙 정렬
         # 프레임 라벨
@@ -359,7 +359,6 @@ class Ui_Dialog(QWidget, object):
         self.Choice_Oil_Type_lb.setVisible(bool)
         self.Regi_DB_button.setVisible(bool)
         self.ReCancel_button.setVisible(bool)
-        self.Register_fr.setVisible(bool)
 
     def Register_button_clicked(self):  # 등록 버튼 이벤트(화면 전환)
         global wtf
@@ -368,6 +367,7 @@ class Ui_Dialog(QWidget, object):
         self.Saving_lb.setVisible(False)
         self.Saving_lb1.setVisible(False)
         self.Regi_SetUi(True)
+        self.Register_fr.setVisible(True)
 
     def Regi_End_SetUi(self):
         self.Regi_SetUi(False)
