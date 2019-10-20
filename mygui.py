@@ -364,6 +364,7 @@ class Ui_Dialog(QWidget, object):
         global wtf
         wtf = 0
         self.Regi_fr.setVisible(False)
+        self.Rema_fr.setVisible(False)
         self.Saving_lb.setVisible(False)
         self.Saving_lb1.setVisible(False)
         self.Regi_SetUi(True)
@@ -451,7 +452,7 @@ class Thread(QThread):
         prevtime = 0
 
         while wtf:
-            k = cv2.waitKey(30) # 영상 프레임 속도 조절
+            #k = cv2.waitKey(30) # 영상 프레임 속도 조절
             ret, frame = capture.read()
             global re, fr
             re = ret
@@ -470,7 +471,7 @@ class Thread(QThread):
                 h, w, ch = rgbImage.shape
                 bytesPerLine = ch * w
                 convertToQtFormat = QtGui.QImage(rgbImage.data, w, h, bytesPerLine, QtGui.QImage.Format_RGB888)
-                p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
+                p = convertToQtFormat.scaled(880, 680, Qt.KeepAspectRatio)
                 self.changePixmap.emit(p)
             sleep(0)
 
@@ -601,6 +602,6 @@ if __name__ == "__main__":
     Dialog.show()
 
     # capture = cv2.VideoCapture(0)
-    capture = cv2.VideoCapture("변환/asdf.mp4")  # 165145 162900
+    capture = cv2.VideoCapture("변환/짤2-2.mp4")  # 165145 162900
 
     sys.exit(app.exec_())
